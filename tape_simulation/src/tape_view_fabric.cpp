@@ -1,3 +1,4 @@
+#include <filesystem>
 #include <sstream>
 #include <stdexcept>
 #include <tape_view.hpp>
@@ -6,6 +7,12 @@
 ////////////////////////////////////////////////////////////////////////////////
 TapeView& TapeViewFabric::openTape(std::string_view filename) {
   increaseOpenCnt();
+  if (openedViews_.find(filename) != openedViews_.end()) {
+    std::stringstream messageStream;
+    messageStream << "Trying opening tape(" << filename << ") twice.";
+    throw std::logic_error(messageStream.str());
+  }
+  openedViews_.emplace(filename, TapeView::open_(*this, filename));
   return openedViews_.at(filename);
 }
 
@@ -27,4 +34,5 @@ TapeView& TapeViewFabric::createTape(std::string_view filename,
 void TapeViewFabric::removeTape(std::string_view filename) {
   increaseRemoveCnt();
   openedViews_.erase(filename);
+  std::filesystem::remove(filename);
 }

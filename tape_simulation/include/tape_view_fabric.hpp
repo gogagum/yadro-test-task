@@ -3,9 +3,8 @@
 
 #include <map>
 #include <string>
+#include <tape_view.hpp>
 #include "impl/tape_view_fabric_statistics_base.hpp"
-
-class TapeView;
 
 class TapeViewFabric : public TapeViewFabricStatisticsBase {
  public:

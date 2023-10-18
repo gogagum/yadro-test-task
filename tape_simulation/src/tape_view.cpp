@@ -55,23 +55,22 @@ TapeView TapeView::createNew_(TapeViewFabric& fabric, std::string_view filename,
   auto fileStream = std::fstream(filename.data(),
                                  std::ios_base::binary | std::ios_base::in |
                                      std::ios_base::out | std::ios_base::trunc);
-  fabric.increaseCreateCnt();
   return TapeView(fabric, std::move(fileStream), size);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-TapeView TapeView::open_(TapeViewFabric& fabric, const std::string& filename) {
+TapeView TapeView::open_(TapeViewFabric& fabric, std::string_view filename) {
   if (!std::filesystem::exists(filename)) {
     std::stringstream message;
     message << "Trying opening a tape (" << filename
             << ") which does not exist.";
     throw std::logic_error(message.str());
   }
-  auto fileStream = std::fstream(filename, std::ios::binary | std::ios::in |
-                                               std::ios::out | std::ios::app);
+  auto fileStream =
+      std::fstream(filename.data(), std::ios::binary | std::ios::in |
+                                        std::ios::out | std::ios::app);
   const auto size = static_cast<std::size_t>(fileStream.tellg()) / 4;
   fileStream.seekg(0);
   fileStream.seekp(0);
-  fabric.increaseOpenCnt();
   return TapeView(fabric, std::move(fileStream), size);
 }

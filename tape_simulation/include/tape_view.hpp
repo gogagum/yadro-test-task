@@ -13,6 +13,16 @@ class TapeView {
                     std::size_t fileSize);
 
  public:
+  TapeView(TapeView&& other) noexcept = default;
+
+  TapeView(const TapeView& other) = delete;
+
+  TapeView& operator=(TapeView&& other) noexcept = default;
+
+  TapeView& operator=(const TapeView& other) = delete;
+
+  ~TapeView() = default;
+  
   std::int32_t read();
 
   void write(std::int32_t x);
@@ -22,10 +32,10 @@ class TapeView {
   void moveRight();
 
  private:
-  static TapeView createNew_(TapeViewFabric& fabric,
-                             std::string_view, std::size_t size);
+  static TapeView createNew_(TapeViewFabric& fabric, std::string_view,
+                             std::size_t size);
 
-  static TapeView open_(TapeViewFabric& fabric, const std::string& filename);
+  static TapeView open_(TapeViewFabric& fabric, std::string_view filename);
 
  private:
   TapeViewFabric* owner_;

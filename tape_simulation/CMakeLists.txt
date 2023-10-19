@@ -11,6 +11,8 @@ target_sources(tape_simulation
         src/tape_pool.cpp
         src/tape_view.cpp
         src/tape.cpp
+        src/tape_view_write_iterators.cpp
+        src/tape_view_read_iterators.cpp
 )
 
 target_include_directories(tape_simulation
@@ -26,9 +28,12 @@ target_include_directories(tape_simulation
 )
 
 set(public_headers
-    include/tape_view_fabric.hpp
+    include/heap_part_sort.hpp
+    include/tape_pool.hpp
     include/tape_view.hpp
     include/tape.hpp
+    include/tape_view_write_iterators.hpp
+    include/move_top_elements_sorted.hpp
 )
 
 set_target_properties(tape_simulation PROPERTIES PUBLIC_HEADER "${public_headers}")

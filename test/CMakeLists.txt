@@ -11,6 +11,8 @@ enable_testing()
 add_executable(tapes_tests
     tape_pool.cpp
     tape.cpp
+    tape_view_write_iterator.cpp
+    tape_view_read_iterator.cpp
 )
 
 target_link_libraries(tapes_tests LINK_PUBLIC gtest_main tape_simulation)

@@ -1,5 +1,5 @@
-#ifndef TAPE_SIMULATION_TAPE_VIEW_FABRIC_HPP
-#define TAPE_SIMULATION_TAPE_VIEW_FABRIC_HPP
+#ifndef TAPE_SIMULATION_TAPE_POOL_HPP
+#define TAPE_SIMULATION_TAPE_POOL_HPP
 
 #include <cstdint>
 #include <map>
@@ -7,13 +7,13 @@
 #include <tape_view.hpp>
 #include <tape.hpp>
 
-#include "impl/tape_view_fabric_statistics_base.hpp"
+#include "impl/tape_pool_statistics_base.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \brief class TapePool - tape views fabric, which counts operations.
-class TapePool : public TapeViewFabricStatisticsBase {
+class TapePool : public TapePoolStatisticsBase {
  public:
-  using IOStatistics = TapeViewFabricStatisticsBase::IOStatistics;
+  using IOStatistics = TapePoolStatisticsBase::IOStatistics;
 
  public:
   TapePool() = default;

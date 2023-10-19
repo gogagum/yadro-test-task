@@ -20,7 +20,7 @@ TEST(TapeViewFabric, CreateTape) {
 
   {
     auto tvf = TapeViewFabric();
-    auto& tapeView = tvf.createTape(filename, 4);
+    auto tapeView = tvf.createTape(filename, 4);
 
     const auto stats = tvf.getStatistics();
 
@@ -35,12 +35,12 @@ TEST(TapeViewFabric, CreateTape) {
 TEST(TapeViewFabric, CreateTapeAndMove) {
   constexpr auto filename = "create_test_tape_and_move";
 
-  assert(!std::filesystem::exists(filename) &&
+  assert(!std::filesystem::remove(filename) &&
          "Tape file was not removed on previous tests run.");
 
   {
     auto tvf = TapeViewFabric();
-    auto& tapeView = tvf.createTape(filename, 4);
+    auto tapeView = tvf.createTape(filename, 4);
 
     tapeView.moveRight();
     tapeView.moveRight();
@@ -58,12 +58,12 @@ TEST(TapeViewFabric, CreateTapeAndMove) {
 TEST(TapeViewFabric, CreateTapeAndMoveRightAndBack) {
   constexpr auto filename = "create_test_tape_and_move_right_and_back";
 
-  assert(!std::filesystem::exists(filename) &&
+  assert(!std::filesystem::remove(filename) &&
          "Tape file was not removed on previous tests run.");
 
   {
     auto tvf = TapeViewFabric();
-    auto& tapeView = tvf.createTape(filename, 4);
+    auto tapeView = tvf.createTape(filename, 4);
 
     tapeView.moveRight();
     tapeView.moveLeft();
@@ -81,12 +81,12 @@ TEST(TapeViewFabric, CreateTapeAndMoveRightAndBack) {
 TEST(TapeViewFabric, CreateTapeAndMoveThroughLeftBorder) {
   constexpr auto filename = "create_test_tape_and_move_through_left_border";
 
-  assert(!std::filesystem::exists(filename) &&
+  assert(!std::filesystem::remove(filename) &&
          "Tape file was not removed on previous tests run.");
 
   {
     auto tvf = TapeViewFabric();
-    auto& tapeView = tvf.createTape(filename, 4);
+    auto tapeView = tvf.createTape(filename, 4);
 
     EXPECT_THROW(tapeView.moveLeft(), std::logic_error);
   }
@@ -103,7 +103,7 @@ TEST(TapeViewFabric, CreateTapeAndMoveThroughRightBorder) {
 
   {
     auto tvf = TapeViewFabric();
-    auto& tapeView = tvf.createTape(filename, 4);
+    auto tapeView = tvf.createTape(filename, 4);
 
     tapeView.moveRight();
     tapeView.moveRight();
@@ -123,7 +123,7 @@ TEST(TapeViewFabric, CreateTapeReadAndWrite) {
   
   {
     auto tvf = TapeViewFabric();
-    auto& tapeView = tvf.createTape(filename, 4);
+    auto tapeView = tvf.createTape(filename, 4);
 
     tapeView.write(42);
     
@@ -141,7 +141,7 @@ TEST(TapeViewFabric, CreateTapeReadAndWriteMultiple) {
 
   {
     auto tvf = TapeViewFabric();
-    auto& tapeView = tvf.createTape(filename, 4);
+    auto tapeView = tvf.createTape(filename, 4);
 
     tapeView.write(42);
     tapeView.moveRight();
@@ -170,7 +170,7 @@ TEST(TapeViewFabric, WriteCloseOpenRead) {
 
   {
     auto tvf = TapeViewFabric();
-    auto& writingView = tvf.createTape(filename, 4);
+    auto writingView = tvf.createTape(filename, 4);
 
     writingView.write(42);
     writingView.moveRight();
@@ -183,7 +183,7 @@ TEST(TapeViewFabric, WriteCloseOpenRead) {
 
   {
     auto readingTvf = TapeViewFabric();
-    auto& readingView = readingTvf.openTape(filename);
+    auto readingView = readingTvf.openTape(filename);
 
     EXPECT_EQ(readingView.read(), 42);
     readingView.moveRight();
@@ -205,7 +205,7 @@ TEST(TapeViewFabric, DeleteTape) {
 
   {
     auto tvf = TapeViewFabric();
-    auto& deletedTape = tvf.createTape(filename, 3);
+    auto deletedTape = tvf.createTape(filename, 3);
 
     tvf.removeTape(filename);
   }

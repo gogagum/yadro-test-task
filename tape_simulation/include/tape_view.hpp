@@ -5,12 +5,13 @@
 #include <fstream>
 #include <string>
 
+#include "impl/i_tape.hpp"
+
 class TapeViewFabric;
 
 class TapeView {
  private:
-  explicit TapeView(TapeViewFabric& fabricPtr, std::fstream&& file,
-                    std::size_t fileSize);
+  explicit TapeView(TapeViewFabric& owner, ITape& tape);
 
  public:
   TapeView(TapeView&& other) noexcept = default;
@@ -32,12 +33,7 @@ class TapeView {
   void moveRight();
 
  private:
-  static TapeView createNew_(TapeViewFabric& fabric, std::string_view,
-                             std::size_t size);
-
-  static TapeView open_(TapeViewFabric& fabric, std::string_view filename);
-
- private:
+  ITape* tape_;
   TapeViewFabric* owner_;
   std::size_t position_{0};
   std::size_t size_;

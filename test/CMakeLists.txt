@@ -9,7 +9,7 @@ FetchContent_MakeAvailable(googletest)
 enable_testing()
 
 add_executable(tapes_tests
-    tape_view_fabric.cpp
+    tape_pool.cpp
     tape.cpp
 )
 

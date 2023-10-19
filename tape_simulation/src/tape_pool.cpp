@@ -12,16 +12,12 @@ TapeView TapePool::openTape(std::string_view filename) {
     messageStream << "Trying opening tape(" << filename << ") twice.";
     throw std::logic_error(messageStream.str());
   }
-  auto file =
-      std::fstream(filename.data(), std::ios_base::in | std::ios_base::out |
-                                        std::ios::binary | std::ios::app);
-  tapes_.emplace(filename, Tape(filename, std::move(file)));
+  tapes_.emplace(filename, Tape(filename));
   return TapeView(*this, tapes_.at(filename));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-TapeView TapePool::createTape(std::string_view filename,
-                                    std::size_t size) {
+TapeView TapePool::createTape(std::string_view filename, std::size_t size) {
   increaseCreateCnt();
   if (tapes_.find(filename) != tapes_.end()) {
     std::stringstream messageStream;
@@ -35,10 +31,7 @@ TapeView TapePool::createTape(std::string_view filename,
                   << ") with filename which already exists.";
     throw std::logic_error(messageStream.str());
   }
-  auto file = std::fstream(filename.data(),
-                           std::ios_base::in | std::ios_base::out |
-                               std::ios_base::binary | std::ios_base::trunc);
-  tapes_.emplace(filename, Tape(filename, std::move(file), size));
+  tapes_.emplace(filename, Tape(filename, size));
   return TapeView(*this, tapes_.at(filename));
 }
 

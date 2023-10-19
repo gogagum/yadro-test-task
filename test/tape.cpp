@@ -12,11 +12,7 @@ TEST(Tape, ConstructNew) {
   assert(!std::filesystem::remove(filename) &&
          "File was not removed in previous test run.");
   {
-    auto tape =
-        Tape(filename,
-             std::fstream(filename, std::ios_base::in | std::ios_base::out |
-                                        std::ios::binary | std::ios::app),
-             4);
+    auto tape = Tape(filename, 4);
     EXPECT_EQ(std::filesystem::file_size(filename), 16);
     EXPECT_EQ(tape.getSize(), 4);
   }
@@ -34,10 +30,7 @@ TEST(Tape, OpenFromFile) {
   std::filesystem::resize_file(filename, 8);
 
   {
-    auto tape =
-        Tape(filename,
-             std::fstream(filename, std::ios_base::in | std::ios_base::out |
-                                        std::ios::binary | std::ios::app));
+    auto tape = Tape(filename);
     EXPECT_EQ(tape.getSize(), 2);
   }
   EXPECT_TRUE(std::filesystem::exists(filename));

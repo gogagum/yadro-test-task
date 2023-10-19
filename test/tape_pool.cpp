@@ -197,7 +197,7 @@ TEST(TapePool, WriteCloseOpenRead) {
   std::filesystem::remove(filename);
 }
 
-TEST(TapePool, DeleteTape) {
+TEST(TapePool, RemoveTape) {
   constexpr auto filename = "deleted_tape";
 
   assert(!std::filesystem::remove(filename) &&

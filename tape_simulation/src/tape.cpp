@@ -5,11 +5,14 @@
 #include <tape.hpp>
 
 ////////////////////////////////////////////////////////////////////////////////
-Tape::Tape(std::string_view filename, std::fstream&& file,
-           std::optional<std::size_t> size)
+Tape::Tape(std::string_view filename, std::optional<std::size_t> size)
     : filename_{filename},
-      size_{size.value_or(std::filesystem::file_size(filename) / 4)},
-      file_{std::move(file)} {
+      size_{size.has_value() ? *size : std::filesystem::file_size(filename) / 4},
+      file_{std::fstream(
+          filename.data(),
+          std::ios_base::in | std::ios_base::out |
+              (size.has_value() ? std::ios_base::trunc : std::ios_base::app) |
+              std::ios_base::binary)} {
   if (size.has_value()) {
     std::filesystem::resize_file(filename_, *size * cellSize);
   }
@@ -27,11 +30,6 @@ std::int32_t Tape::read() {
 void Tape::write(std::int32_t x) {
   file_.seekp(static_cast<std::ptrdiff_t>(position_ * cellSize));
   file_ << x;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-std::size_t Tape::getPosition() const {
-  return position_;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

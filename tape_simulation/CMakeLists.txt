@@ -8,8 +8,9 @@ add_library(tape_simulation STATIC)
 
 target_sources(tape_simulation
     PRIVATE
-        src/tape_view_fabric.cpp
+        src/tape_pool.cpp
         src/tape_view.cpp
+        src/tape.cpp
 )
 
 target_include_directories(tape_simulation
@@ -27,6 +28,7 @@ target_include_directories(tape_simulation
 set(public_headers
     include/tape_view_fabric.hpp
     include/tape_view.hpp
+    include/tape.hpp
 )
 
 set_target_properties(tape_simulation PROPERTIES PUBLIC_HEADER "${public_headers}")

@@ -1,28 +1,28 @@
 #include <gtest/gtest.h>
 
 #include <filesystem>
-#include <tape_view_fabric.hpp>
+#include <tape_pool.hpp>
 
 // NOLINTBEGIN(cppcoreguidelines-avoid-non-const-global-variables,
 // cert-err58-cpp)
 
 ////////////////////////////////////////////////////////////////////////////////
-TEST(TapeViewFabric, Construct) {
-  auto tvf = TapeViewFabric();
+TEST(TapePool, Construct) {
+  auto tapePool = TapePool();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-TEST(TapeViewFabric, CreateTape) {
+TEST(TapePool, CreateTape) {
   constexpr auto filename = "create_test_tape";
 
   assert(!std::filesystem::exists(filename) &&
          "Tape file was not removed on previous tests run.");
 
   {
-    auto tvf = TapeViewFabric();
-    auto tapeView = tvf.createTape(filename, 4);
+    auto tapePool = TapePool();
+    auto tapeView = tapePool.createTape(filename, 4);
 
-    const auto stats = tvf.getStatistics();
+    const auto stats = tapePool.getStatistics();
 
     EXPECT_EQ(stats.createCnt, 1);
     EXPECT_EQ(stats.moveCnt, 0);
@@ -32,20 +32,20 @@ TEST(TapeViewFabric, CreateTape) {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-TEST(TapeViewFabric, CreateTapeAndMove) {
+TEST(TapePool, CreateTapeAndMove) {
   constexpr auto filename = "create_test_tape_and_move";
 
   assert(!std::filesystem::remove(filename) &&
          "Tape file was not removed on previous tests run.");
 
   {
-    auto tvf = TapeViewFabric();
-    auto tapeView = tvf.createTape(filename, 4);
+    auto tapePool = TapePool();
+    auto tapeView = tapePool.createTape(filename, 4);
 
     tapeView.moveRight();
     tapeView.moveRight();
     
-    const auto stats = tvf.getStatistics();
+    const auto stats = tapePool.getStatistics();
 
     EXPECT_EQ(stats.createCnt, 1);
     EXPECT_EQ(stats.moveCnt, 2);
@@ -55,20 +55,20 @@ TEST(TapeViewFabric, CreateTapeAndMove) {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-TEST(TapeViewFabric, CreateTapeAndMoveRightAndBack) {
+TEST(TapePool, CreateTapeAndMoveRightAndBack) {
   constexpr auto filename = "create_test_tape_and_move_right_and_back";
 
   assert(!std::filesystem::remove(filename) &&
          "Tape file was not removed on previous tests run.");
 
   {
-    auto tvf = TapeViewFabric();
-    auto tapeView = tvf.createTape(filename, 4);
+    auto tapePool = TapePool();
+    auto tapeView = tapePool.createTape(filename, 4);
 
     tapeView.moveRight();
     tapeView.moveLeft();
     
-    const auto stats = tvf.getStatistics();
+    const auto stats = tapePool.getStatistics();
 
     EXPECT_EQ(stats.createCnt, 1);
     EXPECT_EQ(stats.moveCnt, 2);
@@ -78,15 +78,15 @@ TEST(TapeViewFabric, CreateTapeAndMoveRightAndBack) {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-TEST(TapeViewFabric, CreateTapeAndMoveThroughLeftBorder) {
+TEST(TapePool, CreateTapeAndMoveThroughLeftBorder) {
   constexpr auto filename = "create_test_tape_and_move_through_left_border";
 
   assert(!std::filesystem::remove(filename) &&
          "Tape file was not removed on previous tests run.");
 
   {
-    auto tvf = TapeViewFabric();
-    auto tapeView = tvf.createTape(filename, 4);
+    auto tapePool = TapePool();
+    auto tapeView = tapePool.createTape(filename, 4);
 
     EXPECT_THROW(tapeView.moveLeft(), std::logic_error);
   }
@@ -95,15 +95,15 @@ TEST(TapeViewFabric, CreateTapeAndMoveThroughLeftBorder) {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-TEST(TapeViewFabric, CreateTapeAndMoveThroughRightBorder) {
+TEST(TapePool, CreateTapeAndMoveThroughRightBorder) {
   constexpr auto filename = "create_test_tape_and_move_through_left_border";
 
   assert(!std::filesystem::exists(filename) &&
          "Tape file was not removed on previous tests run.");
 
   {
-    auto tvf = TapeViewFabric();
-    auto tapeView = tvf.createTape(filename, 4);
+    auto tapePool = TapePool();
+    auto tapeView = tapePool.createTape(filename, 4);
 
     tapeView.moveRight();
     tapeView.moveRight();
@@ -115,15 +115,15 @@ TEST(TapeViewFabric, CreateTapeAndMoveThroughRightBorder) {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-TEST(TapeViewFabric, CreateTapeReadAndWrite) {
+TEST(TapePool, CreateTapeReadAndWrite) {
   constexpr auto filename = "create_tape_write_and_read";
 
   assert(!std::filesystem::remove(filename) &&
          "Tape file was not removed on previous tests run.");
   
   {
-    auto tvf = TapeViewFabric();
-    auto tapeView = tvf.createTape(filename, 4);
+    auto tapePool = TapePool();
+    auto tapeView = tapePool.createTape(filename, 4);
 
     tapeView.write(42);
     
@@ -133,15 +133,15 @@ TEST(TapeViewFabric, CreateTapeReadAndWrite) {
   std::filesystem::remove(filename);
 }
 
-TEST(TapeViewFabric, CreateTapeReadAndWriteMultiple) {
+TEST(TapePool, CreateTapeReadAndWriteMultiple) {
   constexpr auto filename = "create_tape_write_and_read_multiple";
 
   assert(!std::filesystem::remove(filename) &&
          "Tape file was not removed on previous tests run.");
 
   {
-    auto tvf = TapeViewFabric();
-    auto tapeView = tvf.createTape(filename, 4);
+    auto tapePool = TapePool();
+    auto tapeView = tapePool.createTape(filename, 4);
 
     tapeView.write(42);
     tapeView.moveRight();
@@ -162,15 +162,15 @@ TEST(TapeViewFabric, CreateTapeReadAndWriteMultiple) {
   std::filesystem::remove(filename);
 }
 
-TEST(TapeViewFabric, WriteCloseOpenRead) {
+TEST(TapePool, WriteCloseOpenRead) {
   constexpr auto filename = "create_tape_write_and_read_multiple";
 
   assert(!std::filesystem::exists(filename) &&
          "Tape file was not removed on previous tests run.");
 
   {
-    auto tvf = TapeViewFabric();
-    auto writingView = tvf.createTape(filename, 4);
+    auto tapePool = TapePool();
+    auto writingView = tapePool.createTape(filename, 4);
 
     writingView.write(42);
     writingView.moveRight();
@@ -182,8 +182,8 @@ TEST(TapeViewFabric, WriteCloseOpenRead) {
   }
 
   {
-    auto readingTvf = TapeViewFabric();
-    auto readingView = readingTvf.openTape(filename);
+    auto readingTapePool = TapePool();
+    auto readingView = readingTapePool.openTape(filename);
 
     EXPECT_EQ(readingView.read(), 42);
     readingView.moveRight();
@@ -197,17 +197,17 @@ TEST(TapeViewFabric, WriteCloseOpenRead) {
   std::filesystem::remove(filename);
 }
 
-TEST(TapeViewFabric, DeleteTape) {
+TEST(TapePool, DeleteTape) {
   constexpr auto filename = "deleted_tape";
 
   assert(!std::filesystem::remove(filename) &&
          "Tape file was not removed on previous tests run.");
 
   {
-    auto tvf = TapeViewFabric();
-    auto deletedTape = tvf.createTape(filename, 3);
+    auto tapePool = TapePool();
+    auto deletedTape = tapePool.createTape(filename, 3);
 
-    tvf.removeTape(filename);
+    tapePool.removeTape(filename);
   }
 
   EXPECT_FALSE(std::filesystem::exists(filename));

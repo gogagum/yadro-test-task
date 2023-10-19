@@ -4,14 +4,15 @@
 #include <cstdint>
 #include <fstream>
 #include <string>
+#include <tape.hpp>
 
-#include "impl/i_tape.hpp"
+class TapePool;
 
-class TapeViewFabric;
-
+////////////////////////////////////////////////////////////////////////////////
+/// \brief class TapeView non-owning class for tapes control.
 class TapeView {
  private:
-  explicit TapeView(TapeViewFabric& owner, ITape& tape);
+  explicit TapeView(TapePool& owner, Tape& tape);
 
  public:
   TapeView(TapeView&& other) noexcept = default;
@@ -33,14 +34,14 @@ class TapeView {
   void moveRight();
 
  private:
-  ITape* tape_;
-  TapeViewFabric* owner_;
+  Tape* tape_;
+  TapePool* owner_;
   std::size_t position_{0};
   std::size_t size_;
   std::fstream file_;
 
  private:
-  friend class TapeViewFabric;
+  friend class TapePool;
 };
 
 #endif

@@ -1,10 +1,10 @@
 #include <filesystem>
 #include <sstream>
 #include <tape_view.hpp>
-#include <tape_view_fabric.hpp>
+#include <tape_pool.hpp>
 
 ////////////////////////////////////////////////////////////////////////////////
-TapeView::TapeView(TapeViewFabric& owner, ITape& tape)
+TapeView::TapeView(TapePool& owner, Tape& tape)
     : owner_{&owner}, tape_{&tape} {
 }
 

@@ -1,9 +1,9 @@
-#ifndef TAPE_SIMULATION_TAPE_VIEW_FABRIC_STATISTICS_BASE_HPP
-#define TAPE_SIMULATION_TAPE_VIEW_FABRIC_STATISTICS_BASE_HPP
+#ifndef TAPE_SIMULATION_TAPE_POOL_STATISTICS_BASE_HPP
+#define TAPE_SIMULATION_TAPE_POOL_STATISTICS_BASE_HPP
 
 #include <cstdint>
 
-class TapeViewFabricStatisticsBase {
+class TapePoolStatisticsBase {
  public:
   struct IOStatistics {
     std::size_t readCnt;
@@ -16,7 +16,7 @@ class TapeViewFabricStatisticsBase {
   };
 
  protected:
-  TapeViewFabricStatisticsBase() = default;
+  TapePoolStatisticsBase() = default;
 
  public:
   void increaseReadsCnt();
@@ -40,42 +40,42 @@ class TapeViewFabricStatisticsBase {
 };
 
 ////////////////////////////////////////////////////////////////////////////////
-inline void TapeViewFabricStatisticsBase::increaseReadsCnt() {
+inline void TapePoolStatisticsBase::increaseReadsCnt() {
   ++statistics_.readCnt;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-inline void TapeViewFabricStatisticsBase::increaseWritesCnt() {
+inline void TapePoolStatisticsBase::increaseWritesCnt() {
   ++statistics_.writeCnt;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-inline void TapeViewFabricStatisticsBase::increaseMovesCnt() {
+inline void TapePoolStatisticsBase::increaseMovesCnt() {
   ++statistics_.moveCnt;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-inline void TapeViewFabricStatisticsBase::increaseCreateCnt() {
-  ++statistics_.readCnt;
+inline void TapePoolStatisticsBase::increaseCreateCnt() {
+  ++statistics_.createCnt;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-inline void TapeViewFabricStatisticsBase::increaseOpenCnt() {
-  ++statistics_.writeCnt;
+inline void TapePoolStatisticsBase::increaseOpenCnt() {
+  ++statistics_.openCnt;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-inline void TapeViewFabricStatisticsBase::increaseCloseCnt() {
+inline void TapePoolStatisticsBase::increaseCloseCnt() {
+  ++statistics_.closeCnt;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+inline void TapePoolStatisticsBase::increaseRemoveCnt() {
   ++statistics_.moveCnt;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-inline void TapeViewFabricStatisticsBase::increaseRemoveCnt() {
-  ++statistics_.moveCnt;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-inline auto TapeViewFabricStatisticsBase::getStatistics() const
+inline auto TapePoolStatisticsBase::getStatistics() const
     -> IOStatistics {
   return statistics_;
 }

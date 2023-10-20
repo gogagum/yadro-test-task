@@ -77,7 +77,7 @@ TEST(CopyElementsSorted, SortShuffled) {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-TEST(CopyElementsSorted, Fuzz) {
+TEST(CopyElementsSorted, FuzzTop) {
   auto gen = std::mt19937(42);
 
   for (std::size_t i = 0; i < 100; ++i) {
@@ -94,6 +94,27 @@ TEST(CopyElementsSorted, Fuzz) {
 
     EXPECT_EQ(target.size(), copiedCnt);
     EXPECT_TRUE(std::is_sorted(target.begin(), target.end()));
+  }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+TEST(CopyElementsSorted, FuzzBottom) {
+  auto gen = std::mt19937(42);
+
+  for (std::size_t i = 0; i < 100; ++i) {
+    std::vector<int> source;
+    for (std::size_t j = 0; j < 100; ++j) {
+      source.push_back(gen());
+    }
+    const std::size_t copiedCnt = gen() % 100;
+
+    std::vector<int> target;
+
+    copy_bottom_elements_sorted(source.begin(), std::back_inserter(target),
+                             copiedCnt, 100 - copiedCnt);
+
+    EXPECT_EQ(target.size(), copiedCnt);
+    EXPECT_TRUE(std::is_sorted(target.rbegin(), target.rend()));
   }
 }
 

@@ -11,6 +11,7 @@ enable_testing()
 add_executable(tapes_tests
     tape_pool.cpp
     tape.cpp
+    merge.cpp
     tape_view_write_iterator.cpp
     tape_view_read_iterator.cpp
     copy_elements_sorted.cpp

@@ -24,7 +24,7 @@ OutputIterator merge_increasing(InputIterator1 source1, std::size_t cnt1,
                                 InputIterator2 source2, std::size_t cnt2,
                                 OutputIterator target) {
   return merge<InputIterator1, InputIterator2, OutputIterator,
-               std::less<std::int32_t>>(source1, cnt1, source2, cnt2, target);
+               std::less<>>(source1, cnt1, source2, cnt2, target);
 }
 
 /**
@@ -46,7 +46,7 @@ OutputIterator merge_decreasing(InputIterator1 source1, std::size_t cnt1,
                                 InputIterator2 source2, std::size_t cnt2,
                                 OutputIterator target) {
   return merge<InputIterator1, InputIterator2, OutputIterator,
-               std::greater<std::int32_t>>(source1, cnt1, source2, cnt2,
+               std::greater<>>(source1, cnt1, source2, cnt2,
                                            target);
 }
 

@@ -13,7 +13,7 @@ OutputIterator merge(InputIterator1 source1, std::size_t cnt1,
     if (cnt2 == 0) {
       return std::copy_n(source1, cnt1, target);
     }
-    if (Compare()(*source1  *source2)) {
+    if (Compare()(*source1, *source2)) {
       *target = *source1;
       ++source1;
       --cnt1;

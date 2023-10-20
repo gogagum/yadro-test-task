@@ -35,6 +35,7 @@ set(public_headers
     include/tape_view_write_iterators.hpp
     include/move_top_elements_sorted.hpp
     include/copy_top_elements_sorted.hpp
+    include/merge.hpp
 )
 
 set_target_properties(tape_simulation PROPERTIES PUBLIC_HEADER "${public_headers}")

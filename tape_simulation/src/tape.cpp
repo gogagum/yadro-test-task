@@ -7,7 +7,8 @@
 ////////////////////////////////////////////////////////////////////////////////
 Tape::Tape(std::string_view filename, std::optional<std::size_t> size)
     : filename_{filename},
-      size_{size.has_value() ? *size : std::filesystem::file_size(filename) / 4},
+      size_{size.has_value() ? *size
+                             : std::filesystem::file_size(filename) / 4},
       file_{std::fstream(
           filename.data(),
           std::ios_base::in | std::ios_base::out |
@@ -20,6 +21,19 @@ Tape::Tape(std::string_view filename, std::optional<std::size_t> size)
 
 ////////////////////////////////////////////////////////////////////////////////
 std::int32_t Tape::read() {
+  if (position_ < 0) {
+    std::stringstream messageStream;
+    messageStream << "Trying reading from position " << position_
+                  << " while working with \"" << filename_ << "\".";
+    throw std::logic_error(messageStream.str());
+  }
+  if (position_ >= size_) {
+    std::stringstream messageStream;
+    messageStream << "Trying reading from position " << position_
+                  << " while working with \"" << filename_
+                  << "\", while tape size is " << size_ << ".";
+    throw std::logic_error(messageStream.str());
+  }
   auto ret = std::int32_t{};
   file_.seekg(static_cast<std::ptrdiff_t>(position_ * cellSize));
   file_ >> ret;
@@ -34,7 +48,7 @@ void Tape::write(std::int32_t x) {
 
 ////////////////////////////////////////////////////////////////////////////////
 void Tape::moveLeft() {
-  if (position_ == 0) {
+  if (position_ == -1) {
     std::stringstream messageStream;
     messageStream << "Trying moving left from the most left position in tape \""
                   << filename_ << "\".";
@@ -45,7 +59,7 @@ void Tape::moveLeft() {
 
 ////////////////////////////////////////////////////////////////////////////////
 void Tape::moveRight() {
-  if (position_ == size_ - 1) {
+  if (position_ == size_) {
     std::stringstream messageStream;
     messageStream
         << "Trying moving right from the most right position in tape \""

@@ -13,6 +13,7 @@ add_executable(tapes_tests
     tape.cpp
     tape_view_write_iterator.cpp
     tape_view_read_iterator.cpp
+    copy_elements_sorted.cpp
 )
 
 target_link_libraries(tapes_tests LINK_PUBLIC gtest_main tape_simulation)

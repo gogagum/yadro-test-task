@@ -18,8 +18,11 @@ class ReadIteratorBase {
  protected:
   TapeView& getTapeView_();
 
+  void resetCache_();
+
  private:
   TapeView* tapeView_;
+  std::optional<std::uint32_t> readCache_{};
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -31,7 +34,10 @@ inline ReadIteratorBase<Derived>::ReadIteratorBase(TapeView& tv)
 ////////////////////////////////////////////////////////////////////////////////
 template <class Derived>
 inline std::int32_t ReadIteratorBase<Derived>::operator*() {
-  return tapeView_->read();
+  if (!readCache_.has_value()) {
+    readCache_ = tapeView_->read();
+  }
+  return *readCache_;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -50,6 +56,12 @@ inline bool ReadIteratorBase<Derived>::operator!=(const Derived& other) const {
 template <class Derived>
 inline TapeView& ReadIteratorBase<Derived>::getTapeView_() {
   return *tapeView_;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+template <class Derived>
+inline void ReadIteratorBase<Derived>::resetCache_() {
+  readCache_.reset();
 }
 
 #endif  // TAPE_SIMULATION_READ_ITERATOR_BASE_HPP

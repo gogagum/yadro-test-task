@@ -187,6 +187,7 @@ TEST(TapeViewWriteIterator, ConstructRightAndMoveOutOfRange) {
     {
       auto tapeView = tapePool.createTape(filename, 1);
       auto writeIterator = RightWriteIterator(tapeView);
+      tapeView.moveRight();
 
       EXPECT_THROW(writeIterator = 45, std::logic_error);
     }
@@ -207,7 +208,8 @@ TEST(TapeViewWriteIterator, ConstructLeftAndMoveOutOfRange) {
 
     {
       auto tapeView = tapePool.createTape(filename, 1);
-      auto writeIterator = RightWriteIterator(tapeView);
+      auto writeIterator = LeftWriteIterator(tapeView);
+      tapeView.moveLeft();
 
       EXPECT_THROW(writeIterator = 34, std::logic_error);
     }

@@ -67,14 +67,14 @@ class Tape {
   [[nodiscard]] std::size_t getSize() const;
 
  private:
-  std::size_t position_{0};
+  std::uint64_t position_{0};
   std::string filename_;
   std::size_t size_;
   std::fstream file_;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
-inline std::size_t Tape::getPosition() const {
+inline std::uint64_t Tape::getPosition() const {
   return position_;
 }
 

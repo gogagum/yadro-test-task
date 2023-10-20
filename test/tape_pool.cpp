@@ -87,6 +87,7 @@ TEST(TapePool, CreateTapeAndMoveThroughLeftBorder) {
   {
     auto tapePool = TapePool();
     auto tapeView = tapePool.createTape(filename, 4);
+    tapeView.moveLeft();
 
     EXPECT_THROW(tapeView.moveLeft(), std::logic_error);
   }
@@ -105,6 +106,7 @@ TEST(TapePool, CreateTapeAndMoveThroughRightBorder) {
     auto tapePool = TapePool();
     auto tapeView = tapePool.createTape(filename, 4);
 
+    tapeView.moveRight();
     tapeView.moveRight();
     tapeView.moveRight();
     tapeView.moveRight();

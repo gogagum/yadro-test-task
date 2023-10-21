@@ -47,8 +47,8 @@ void Tape::write(std::int32_t x) {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void Tape::moveLeft() {
-  if (position_ == -1) {
+void Tape::moveLeft(std::size_t i) {
+  if (position_ - i < -1) {
     std::stringstream messageStream;
     messageStream << "Trying moving left from the most left position in tape \""
                   << filename_ << "\".";
@@ -58,8 +58,8 @@ void Tape::moveLeft() {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void Tape::moveRight() {
-  if (position_ == size_) {
+void Tape::moveRight(std::size_t i) {
+  if (position_ + i > size_) {
     std::stringstream messageStream;
     messageStream
         << "Trying moving right from the most right position in tape \""

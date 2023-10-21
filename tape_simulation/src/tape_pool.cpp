@@ -36,6 +36,18 @@ TapeView TapePool::createTape(std::string_view filename, std::size_t size) {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+TapeView TapePool::getOpenedTapeView(std::string_view filename) {
+  if (tapes_.find(filename) == tapes_.end()) {
+    std::stringstream messageStream;
+    messageStream
+        << "Trying getting a view to a tape that was not opened or created yet("
+        << filename << ").";
+    throw std::logic_error(messageStream.str());
+  }
+  return TapeView(*this, tapes_.at(filename));
+}
+
+////////////////////////////////////////////////////////////////////////////////
 void TapePool::removeTape(std::string_view filename) {
   increaseRemoveCnt();
   tapes_.erase(filename);

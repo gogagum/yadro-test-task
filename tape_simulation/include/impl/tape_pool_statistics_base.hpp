@@ -23,7 +23,7 @@ class TapePoolStatisticsBase {
 
   void increaseWritesCnt();
 
-  void increaseMovesCnt();
+  void increaseMovesCnt(std::size_t i);
 
   void increaseCreateCnt();
 
@@ -50,8 +50,8 @@ inline void TapePoolStatisticsBase::increaseWritesCnt() {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-inline void TapePoolStatisticsBase::increaseMovesCnt() {
-  ++statistics_.moveCnt;
+inline void TapePoolStatisticsBase::increaseMovesCnt(std::size_t i) {
+  statistics_.moveCnt += i;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

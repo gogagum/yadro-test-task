@@ -10,7 +10,7 @@
 /// \brief RightReadIterator - reading right iterator.
 class RightReadIterator : public ReadIteratorBase<RightReadIterator> {
  public:
-  using iterator_category = std::output_iterator_tag;
+  using iterator_category = std::input_iterator_tag;
   using value_type = std::int32_t;
   using difference_type = void;
   using pointer = std::int32_t*;
@@ -26,7 +26,7 @@ class RightReadIterator : public ReadIteratorBase<RightReadIterator> {
 /// \brief RightReadIterator - reading right iterator.
 class LeftReadIterator : public ReadIteratorBase<LeftReadIterator> {
  public:
-  using iterator_category = std::output_iterator_tag;
+  using iterator_category = std::input_iterator_tag;
   using value_type = std::int32_t;
   using difference_type = void;
   using pointer = std::int32_t*;

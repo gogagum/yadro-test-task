@@ -13,6 +13,7 @@ target_sources(tape_simulation
         src/tape.cpp
         src/tape_view_write_iterators.cpp
         src/tape_view_read_iterators.cpp
+        src/merge_sort.cpp
 )
 
 target_include_directories(tape_simulation
@@ -36,6 +37,7 @@ set(public_headers
     include/move_top_elements_sorted.hpp
     include/copy_top_elements_sorted.hpp
     include/merge.hpp
+    include/merge_sort.hpp
 )
 
 set_target_properties(tape_simulation PROPERTIES PUBLIC_HEADER "${public_headers}")

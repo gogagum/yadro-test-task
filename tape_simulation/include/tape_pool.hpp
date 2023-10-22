@@ -42,7 +42,15 @@ class TapePool : public TapePoolStatisticsBase {
    * @param filename name of a tape.
    * @return view to an opened tape.
    */
-  [[nodiscard]] TapeView getOpenedTapeView(std::string_view filename);
+  TapeView getOpenedTape(std::string_view filename);
+
+  /**
+   * @brief Get or open tape.
+   * 
+   * @param filename tape filename.
+   * @return tape view.
+   */
+  TapeView getOrOpenTape(std::string_view filename);
 
   /**
    * @brief Remove tape.

@@ -36,7 +36,7 @@ TapeView TapePool::createTape(std::string_view filename, std::size_t size) {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-TapeView TapePool::getOpenedTapeView(std::string_view filename) {
+TapeView TapePool::getOpenedTape(std::string_view filename) {
   if (tapes_.find(filename) == tapes_.end()) {
     std::stringstream messageStream;
     messageStream
@@ -45,6 +45,14 @@ TapeView TapePool::getOpenedTapeView(std::string_view filename) {
     throw std::logic_error(messageStream.str());
   }
   return TapeView(*this, tapes_.at(filename));
+}
+
+////////////////////////////////////////////////////////////////////////////////
+TapeView TapePool::getOrOpenTape(std::string_view filename) {
+  if (tapes_.find(filename) != tapes_.end()) {
+    return TapeView(*this, tapes_.at(filename));
+  }
+  return openTape(filename);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

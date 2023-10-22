@@ -48,23 +48,23 @@ void Tape::write(std::int32_t x) {
 
 ////////////////////////////////////////////////////////////////////////////////
 void Tape::moveLeft(std::size_t i) {
-  if (position_ - i < -1) {
+  if (position_ - static_cast<std::int64_t>(i) < -1) {
     std::stringstream messageStream;
     messageStream << "Trying moving left from the most left position in tape \""
                   << filename_ << "\".";
     throw std::logic_error(messageStream.str());
   }
-  --position_;
+  position_ -= static_cast<std::int64_t>(i);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 void Tape::moveRight(std::size_t i) {
-  if (position_ + i > size_) {
+  if (position_ + static_cast<std::int64_t>(i) > size_) {
     std::stringstream messageStream;
     messageStream
         << "Trying moving right from the most right position in tape \""
         << filename_ << "\".";
     throw std::logic_error(messageStream.str());
   }
-  ++position_;
+  position_ += static_cast<std::int64_t>(i);
 }

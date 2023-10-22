@@ -12,7 +12,8 @@
 /// \brief class MergeSort - merge sort class.
 class MergeSort {
  public:
-  MergeSort(std::string_view inFilename, std::string_view tmpDirectory);
+  MergeSort(TapePool& tapePool, std::string_view inFilename,
+            std::string_view tmpDirectory);
 
   void perform(std::string_view outFilename) &&;
 
@@ -40,21 +41,14 @@ class MergeSort {
       std::size_t blockSize) const;
 
  private:
-  TapePool tapePool_{};
+  TapePool* tapePool_;
   std::size_t elementsCnt_;
   std::string inFilename_;
   std::string tmpDirectory_;
   std::size_t firstHalfSize_;
   std::size_t secondHalfSize_;
+  bool needToRemoveTmpPath_{false};
 };
-
-////////////////////////////////////////////////////////////////////////////////
-inline MergeSort::MergeSort(std::string_view inFilename,
-                            std::string_view tmpDirectory)
-    : elementsCnt_{tapePool_.openTape(inFilename).getSize()},
-      inFilename_{inFilename},
-      tmpDirectory_{tmpDirectory} {
-}
 
 ////////////////////////////////////////////////////////////////////////////////
 inline std::size_t getBlockSize_(std::size_t iteration) {

@@ -9,11 +9,19 @@
 /// \brief class WriteIteratorBase
 template <class Derived>
 class WriteIteratorBase {
+ protected:
+  class WriteRef {
+   public:
+    explicit WriteRef(TapeView& tv);
+    WriteRef& operator=(std::int32_t value);
+
+   private:
+    TapeView* tapeView_;
+  };
+
  public:
   explicit WriteIteratorBase(TapeView& tv);
-  Derived& operator*();
-  Derived& operator++();
-  Derived operator++(int);
+  WriteRef operator*();
 
  protected:
   TapeView& getTapeView_();
@@ -24,32 +32,34 @@ class WriteIteratorBase {
 
 ////////////////////////////////////////////////////////////////////////////////
 template <class Derived>
+inline WriteIteratorBase<Derived>::WriteRef::WriteRef(TapeView& tv)
+    : tapeView_(&tv) {
+}
+
+////////////////////////////////////////////////////////////////////////////////
+template <class Derived>
+inline auto WriteIteratorBase<Derived>::WriteRef::operator=(std::int32_t value)
+    -> WriteRef& {
+  tapeView_->write(value);
+  return *this;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+template <class Derived>
 inline WriteIteratorBase<Derived>::WriteIteratorBase(TapeView& tv)
     : tapeView_{&tv} {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 template <class Derived>
-inline Derived& WriteIteratorBase<Derived>::operator*() {
-  return static_cast<Derived&>(*this);
+inline auto WriteIteratorBase<Derived>::operator*() -> WriteRef {
+  return WriteRef(getTapeView_());
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 template <class Derived>
 inline TapeView& WriteIteratorBase<Derived>::getTapeView_() {
   return *tapeView_;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-template <class Derived>
-inline Derived& WriteIteratorBase<Derived>::operator++() {
-  return static_cast<Derived&>(*this);
-}
-
-////////////////////////////////////////////////////////////////////////////////
-template <class Derived>
-inline Derived WriteIteratorBase<Derived>::operator++(int) {
-  return static_cast<Derived&>(*this);
 }
 
 #endif  // TAPE_SIMULATION_WRITE_ITERATOR_BASE_HPP

@@ -2,14 +2,40 @@
 #include <cassert>
 #include <merge_sort.hpp>
 #include <tape_pool.hpp>
+#include <filesystem>
 
 #include "merge.hpp"
 #include "tape_view_read_iterators.hpp"
 #include "tape_view_write_iterators.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
+MergeSort::MergeSort(TapePool& tapePool, std::string_view inFilename,
+                            std::string_view tmpDirectory)
+    : tapePool_{&tapePool},
+      elementsCnt_{tapePool_->getOrOpenTape(inFilename).getSize()},
+      inFilename_{inFilename},
+      tmpDirectory_{tmpDirectory} {
+  if (!std::filesystem::exists(tmpDirectory)) {
+    std::filesystem::create_directory(tmpDirectory);
+    needToRemoveTmpPath_ = true;
+  }
+}
+
+////////////////////////////////////////////////////////////////////////////////
 void MergeSort::perform(std::string_view outFilename) && {
-  auto srcTape = tapePool_.getOpenedTapeView(inFilename_);
+  auto inTape = tapePool_->getOpenedTape(inFilename_);
+  auto outTape = tapePool_->createTape(outFilename, elementsCnt_);
+
+  if (elementsCnt_ == 0) {
+    return;
+  }
+
+  if (elementsCnt_ == 1) {
+    outTape.write(inTape.read());
+    outTape.moveRight();
+    inTape.moveRight();
+    return;
+  }
 
   const auto [iterationsCnt, maxBlockSize] =
       getIterationsCntAndMaxBlockSize_(1);
@@ -19,17 +45,17 @@ void MergeSort::perform(std::string_view outFilename) && {
   const std::string tmpTapeName10 = tmpDirectory_ + "/tmpTape10";
   const std::string tmpTapeName11 = tmpDirectory_ + "/tmpTape11";
 
-  auto tape00 = tapePool_.createTape(tmpTapeName00, maxBlockSize);
+  auto tape00 = tapePool_->createTape(tmpTapeName00, maxBlockSize);
   auto tape01 =
-      tapePool_.createTape(tmpTapeName01, elementsCnt_ - maxBlockSize);
-  auto tape10 = tapePool_.createTape(tmpTapeName10, maxBlockSize);
+      tapePool_->createTape(tmpTapeName01, elementsCnt_ - maxBlockSize);
+  auto tape10 = tapePool_->createTape(tmpTapeName10, maxBlockSize);
   auto tape11 =
-      tapePool_.createTape(tmpTapeName11, elementsCnt_ - maxBlockSize);
+      tapePool_->createTape(tmpTapeName11, elementsCnt_ - maxBlockSize);
 
   {
-    auto out0 = tapePool_.getOpenedTapeView(tmpTapeName00);
-    auto out1 = tapePool_.getOpenedTapeView(tmpTapeName01);
-    makeInitialBlocks_(srcTape, out0, out1);
+    auto out0 = tapePool_->getOpenedTape(tmpTapeName00);
+    auto out1 = tapePool_->getOpenedTape(tmpTapeName01);
+    makeInitialBlocks_(inTape, out0, out1);
   }
 
   std::size_t iteration = 0;
@@ -51,20 +77,26 @@ void MergeSort::perform(std::string_view outFilename) && {
     }
   }
 
-  blockSize /= 2;
-
-  auto outTape = tapePool_.createTape(outFilename, elementsCnt_);
-
   if (iteration % 2 == 0) {  // resulting merge is left
     outTape.moveRight(elementsCnt_ - 1);
 
     merge_decreasing(LeftReadIterator(tape00), blockSize,
                      LeftReadIterator(tape01), elementsCnt_ - blockSize,
                      LeftWriteIterator(outTape));
+    outTape.moveRight(elementsCnt_ + 1);
   } else {
     merge_increasing(RightReadIterator(tape10), blockSize,
                      RightReadIterator(tape11), elementsCnt_ - blockSize,
                      RightWriteIterator(outTape));
+  }
+
+  tapePool_->removeTape(tmpTapeName00);
+  tapePool_->removeTape(tmpTapeName01);
+  tapePool_->removeTape(tmpTapeName10);
+  tapePool_->removeTape(tmpTapeName11);
+
+  if (needToRemoveTmpPath_) {
+    std::filesystem::remove(tmpDirectory_);
   }
 }
 
@@ -89,6 +121,8 @@ void MergeSort::makeInitialBlocks_(TapeView& in, TapeView& out0,
   auto read = RightReadIterator(in);
   std::copy_n(read, to0Cnt, RightWriteIterator(out0));
   std::copy_n(read, to1Cnt, RightWriteIterator(out1));
+  out0.moveLeft();
+  out1.moveLeft();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -212,3 +246,7 @@ void MergeSort::mergeBlocksLeft_(TapeView& in0, TapeView& in1, TapeView& out0,
   assert(out0.getPosition() == -1 && "out0 must come to the beginning.");
   assert(out1.getPosition() == -1 && "out1 must come to the beginning.");
 }
+
+//MergeSort::~MergeSort() {
+//  
+//}

@@ -55,7 +55,9 @@ static auto simpleMergesInputs = std::vector<MergeTestParam>{
     {"merge_intersecting_increasing", {1, 3, 4}, {2, 5, 6}, true},
     {"merge_intersecting_decreasing", {4, 3, 1}, {6, 5, 2}, false},
     {"merge_non_intersecting_increasing", {1, 2, 3}, {4, 5, 6}, true},
-    {"merge_non_intersecting_decreasing", {3, 2, 1}, {6, 5, 4}, false}
+    {"merge_non_intersecting_decreasing", {3, 2, 1}, {6, 5, 4}, false},
+    {"merge_non_intersecting_increasing_swapped", {4, 5, 6}, {1, 2, 3}, true},
+    {"merge_non_intersecting_decreasing_swapped", {6, 5, 4}, {3, 2, 1}, false}
 };
 
 INSTANTIATE_TEST_SUITE_P(SimpleTapesMerges, MergeTest,

@@ -47,23 +47,50 @@ class TapeView {
 
   /**
    * @brief Move head left and update pool statistics.
+   * 
+   * @param i moves count.
    */
-  void moveLeft();
+  void moveLeft(std::size_t i = 1);
 
   /**
    * @brief Move head right and update pool statistics.
+   * 
+   * @param i moves count.
    */
-  void moveRight();
+  void moveRight(std::size_t  = 1);
+
+  /**
+   * @brief Get size of the tape.
+   * 
+   * @return tape cells count
+   */
+  [[nodiscard]] std::size_t getSize() const;
+
+  /**
+   * @brief Get head position.
+   * 
+   * @return get current tape cell.
+   */
+  [[nodiscard]] std::int64_t getPosition() const;
 
  private:
   Tape* tape_;
   TapePool* owner_;
-  std::size_t position_{0};
   std::size_t size_;
   std::fstream file_;
 
  private:
   friend class TapePool;
 };
+
+////////////////////////////////////////////////////////////////////////////////
+inline std::size_t TapeView::getSize() const {
+  return tape_->getSize();
+}
+
+////////////////////////////////////////////////////////////////////////////////
+inline std::int64_t TapeView::getPosition() const {
+  return tape_->getPosition();
+}
 
 #endif

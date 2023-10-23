@@ -47,17 +47,21 @@ class Tape {
    * 
    * @return std::size_t head position, index of a cell.
    */
-  [[nodiscard]] std::size_t getPosition() const;
+  [[nodiscard]] std::int64_t getPosition() const;
 
   /**
    * @brief Move head one cell left.
+   * 
+   * @param i move count.
    */
-  void moveLeft();
+  void moveLeft(std::size_t i = 1);
 
   /**
    * @brief Move head one cell right.
+   * 
+   * @param i move count.
    */
-  void moveRight();
+  void moveRight(std::size_t i = 1);
 
   /**
    * @brief Get tape cells count.
@@ -67,14 +71,14 @@ class Tape {
   [[nodiscard]] std::size_t getSize() const;
 
  private:
-  std::uint64_t position_{0};
+  std::int64_t position_{0};
   std::string filename_;
   std::size_t size_;
   std::fstream file_;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
-inline std::uint64_t Tape::getPosition() const {
+inline std::int64_t Tape::getPosition() const {
   return position_;
 }
 

@@ -72,7 +72,6 @@ TEST(TapeViewWriteIterator, ConstructRightAndWrite) {
       auto writeIterator = RightWriteIterator(tapeView);
 
       *writeIterator = 57;
-      tapeView.moveLeft();
 
       EXPECT_EQ(tapeView.read(), 57);
     }
@@ -82,7 +81,7 @@ TEST(TapeViewWriteIterator, ConstructRightAndWrite) {
     EXPECT_EQ(stats.createCnt, 1);
     EXPECT_EQ(stats.readCnt, 1);
     EXPECT_EQ(stats.writeCnt, 1);
-    EXPECT_EQ(stats.moveCnt, 2);
+    EXPECT_EQ(stats.moveCnt, 0);
   }
 
   std::filesystem::remove(filename);
@@ -101,9 +100,7 @@ TEST(TapeViewWriteIterator, ConstructLeftAndWrite) {
       auto tapeView = tapePool.createTape(filename, 42);
       auto writeIterator = LeftWriteIterator(tapeView);
 
-      tapeView.moveRight();
       *writeIterator = 57;
-      tapeView.moveRight();
 
       EXPECT_EQ(tapeView.read(), 57);
     }
@@ -113,7 +110,7 @@ TEST(TapeViewWriteIterator, ConstructLeftAndWrite) {
     EXPECT_EQ(stats.createCnt, 1);
     EXPECT_EQ(stats.readCnt, 1);
     EXPECT_EQ(stats.writeCnt, 1);
-    EXPECT_EQ(stats.moveCnt, 3);
+    EXPECT_EQ(stats.moveCnt, 0);
   }
 
   std::filesystem::remove(filename);
@@ -140,7 +137,7 @@ TEST(TapeViewWriteIterator, ConstructRightAndMove) {
     EXPECT_EQ(stats.createCnt, 1);
     EXPECT_EQ(stats.readCnt, 0);
     EXPECT_EQ(stats.writeCnt, 0);
-    EXPECT_EQ(stats.moveCnt, 0);
+    EXPECT_EQ(stats.moveCnt, 1);
   }
 
   std::filesystem::remove(filename);
@@ -168,7 +165,7 @@ TEST(TapeViewWriteIterator, ConstructLeftAndMove) {
     EXPECT_EQ(stats.createCnt, 1);
     EXPECT_EQ(stats.readCnt, 0);
     EXPECT_EQ(stats.writeCnt, 0);
-    EXPECT_EQ(stats.moveCnt, 0);
+    EXPECT_EQ(stats.moveCnt, 1);
   }
 
   std::filesystem::remove(filename);

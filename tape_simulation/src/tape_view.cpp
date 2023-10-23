@@ -21,13 +21,13 @@ void TapeView::write(std::int32_t x) {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void TapeView::moveLeft() {
-  owner_ ->increaseMovesCnt();
-  tape_->moveLeft();
+void TapeView::moveLeft(std::size_t i) {
+  owner_ ->increaseMovesCnt(i);
+  tape_->moveLeft(i);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void TapeView::moveRight() {
-  owner_->increaseMovesCnt();
-  tape_->moveRight();
+void TapeView::moveRight(std::size_t i) {
+  owner_->increaseMovesCnt(i);
+  tape_->moveRight(i);
 }

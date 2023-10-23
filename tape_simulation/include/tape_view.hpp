@@ -48,17 +48,27 @@ class TapeView {
 
   /**
    * @brief Move head left and update pool statistics.
-   *
-   * @param i moves count.
    */
-  void moveLeft(std::size_t i = 1);
+  void moveLeft();
+
+  /**
+   * @brief Move left multiple times.
+   * 
+   * @param n
+   */
+  void moveLeftRepeated(std::size_t n);
 
   /**
    * @brief Move head right and update pool statistics.
-   *
-   * @param i moves count.
    */
-  void moveRight(std::size_t = 1);
+  void moveRight();
+
+  /**
+   * @brief Move left multiple times.
+   * 
+   * @param n
+   */
+  void moveRightRepeated(std::size_t n);
 
   /**
    * @brief Get size of the tape.
@@ -72,7 +82,7 @@ class TapeView {
    *
    * @return get current tape cell.
    */
-  [[nodiscard]] std::int64_t getPosition() const;
+  [[nodiscard]] std::size_t getPosition() const;
 
  private:
   Tape* tape_;
@@ -90,7 +100,7 @@ inline std::size_t TapeView::getSize() const {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-inline std::int64_t TapeView::getPosition() const {
+inline std::size_t TapeView::getPosition() const {
   return tape_->getPosition();
 }
 

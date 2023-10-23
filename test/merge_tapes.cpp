@@ -57,8 +57,8 @@ TEST_P(MergeTapesTest, MergeSimple) {
     assert(inTape0.getPosition() + 1 == inSize0);
     assert(inTape1.getPosition() + 1 == inSize1);
 
-    inTape0.moveLeft(inSize0 - 1);
-    inTape1.moveLeft(inSize1 - 1);
+    inTape0.moveLeftRepeated(inSize0 - 1);
+    inTape1.moveLeftRepeated(inSize1 - 1);
 
     auto outTape = tp.createTape(outTapeName, outSize);
 

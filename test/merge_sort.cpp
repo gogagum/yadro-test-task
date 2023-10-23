@@ -30,12 +30,14 @@ TEST_P(MergeSortTest, MergeSortCompareWithStdSort) {
     auto inTape = tapePool.createTape(inFilename, params.values.size());
     copy_n(params.values.begin(), params.values.size(),
            RightWriteIterator(inTape));
-    inTape.moveLeft(inTape.getPosition());
+
+    
+    inTape.moveLeftRepeated(inTape.getPosition());
 
     MergeSort(tapePool, inFilename, "tmp").perform(outFilename);
 
     auto outTape = tapePool.getOpenedTape(outFilename);
-    outTape.moveLeft(outTape.getPosition());
+    outTape.moveLeftRepeated(outTape.getPosition());
 
     auto result = std::vector<std::int32_t>{};
 

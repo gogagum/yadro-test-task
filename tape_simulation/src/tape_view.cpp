@@ -1,11 +1,10 @@
 #include <filesystem>
 #include <sstream>
-#include <tape_view.hpp>
 #include <tape_pool.hpp>
+#include <tape_view.hpp>
 
 ////////////////////////////////////////////////////////////////////////////////
-TapeView::TapeView(TapePool& owner, Tape& tape)
-    : owner_{&owner}, tape_{&tape} {
+TapeView::TapeView(TapePool& owner, Tape& tape) : owner_{&owner}, tape_{&tape} {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -21,13 +20,27 @@ void TapeView::write(std::int32_t x) {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void TapeView::moveLeft(std::size_t i) {
-  owner_->increaseMovesCnt(i);
-  tape_->moveLeft(i);
+void TapeView::moveLeft() {
+  tape_->moveLeft();
+  owner_->increaseMovesCnt();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void TapeView::moveRight(std::size_t i) {
-  owner_->increaseMovesCnt(i);
-  tape_->moveRight(i);
+void TapeView::moveLeftRepeated(std::size_t n) {
+  for (std::size_t i = 0; i < n; ++i) {
+    moveLeft();
+  }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void TapeView::moveRight() {
+  tape_->moveRight();
+  owner_->increaseMovesCnt();
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void TapeView::moveRightRepeated(std::size_t n) {
+  for (std::size_t i = 0; i < n; ++i) {
+    moveRight();
+  }
 }

@@ -32,8 +32,6 @@ void MergeSort::perform(std::string_view outFilename) && {
 
   if (elementsCnt_ == 1) {
     outTape.write(inTape.read());
-    outTape.moveRight();
-    inTape.moveRight();
     return;
   }
 

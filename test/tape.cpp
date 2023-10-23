@@ -40,21 +40,21 @@ TEST(Tape, OpenFromFile) {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-TEST(Tape, MovingLeftOnceDoesNotBreak) {
+TEST(Tape, MovingLeftOnceBreaks) {
   constexpr auto filename = "moving_left_once_does_not_break";
   assert(!std::filesystem::remove(filename) &&
          "File was not removed in previous test run.");
 
   {
     auto tape = Tape(filename, 2);
-    tape.moveLeft();
+    EXPECT_THROW(tape.moveLeft(), std::logic_error);
   }
   EXPECT_TRUE(std::filesystem::exists(filename));
   std::filesystem::remove(filename);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-TEST(Tape, MovingRightOnceAfterLastDoesNotBreak) {
+TEST(Tape, MovingRightOnceAfterLastBreaks) {
   constexpr auto filename = "moving_right_once_after_last_does_not_break";
   assert(!std::filesystem::remove(filename) &&
          "File was not removed in previous test run.");
@@ -62,39 +62,9 @@ TEST(Tape, MovingRightOnceAfterLastDoesNotBreak) {
   {
     auto tape = Tape(filename, 2);
     tape.moveRight();
-    tape.moveRight();
+    EXPECT_THROW(tape.moveRight(), std::logic_error);
   }
-  EXPECT_TRUE(std::filesystem::exists(filename));
-  std::filesystem::remove(filename);
-}
 
-////////////////////////////////////////////////////////////////////////////////
-TEST(Tape, MovingLeftOnceAndReadingDoesBreak) {
-  constexpr auto filename = "moving_left_once_and_reading_does_break";
-  assert(!std::filesystem::remove(filename) &&
-         "File was not removed in previous test run.");
-
-  {
-    auto tape = Tape(filename, 2);
-    tape.moveLeft();
-    EXPECT_THROW(auto x = tape.read(), std::logic_error);
-  }
-  EXPECT_TRUE(std::filesystem::exists(filename));
-  std::filesystem::remove(filename);
-}
-
-////////////////////////////////////////////////////////////////////////////////
-TEST(Tape, MovingRightOnceAfterLastAndReadingDoesBreak) {
-  constexpr auto filename = "moving_right_once_after_last_and_reading_does_break";
-  assert(!std::filesystem::remove(filename) &&
-         "File was not removed in previous test run.");
-
-  {
-    auto tape = Tape(filename, 2);
-    tape.moveRight();
-    tape.moveRight();
-    EXPECT_THROW(auto x = tape.read(), std::logic_error);
-  }
   EXPECT_TRUE(std::filesystem::exists(filename));
   std::filesystem::remove(filename);
 }

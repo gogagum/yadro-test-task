@@ -10,6 +10,27 @@
 /// \brief class Tape - tape modelling over a file.
 class Tape {
  public:
+
+  //////////////////////////////////////////////////////////////////////////////
+  /// \brief class LeftOutOfRange - out of range exception
+  class RightOutOfRange : public std::out_of_range {
+   private:
+    RightOutOfRange(const std::string& filename, std::size_t position);
+    static std::string generateMessage_(const std::string& filename,
+                                        std::size_t position);
+    friend class Tape;
+  };
+
+  //////////////////////////////////////////////////////////////////////////////
+  /// \brief class LeftOutOfRange - out of range exception
+  class LeftOutOfRange : public std::out_of_range {
+   private:
+    explicit LeftOutOfRange(const std::string& filename);
+    static std::string generateMessage_(const std::string& filename);
+    friend class Tape;
+  };
+
+ public:
   constexpr static auto cellSize = sizeof(std::uint32_t);
 
  public:
@@ -30,55 +51,51 @@ class Tape {
 
   /**
    * @brief read cell.
-   * 
+   *
    * @return std::int32_t read value.
    */
   [[nodiscard]] std::int32_t read();
 
   /**
    * @brief write to a current cell.
-   * 
+   *
    * @param x value to write.
    */
   void write(std::int32_t x);
 
   /**
    * @brief get current head position.
-   * 
+   *
    * @return std::size_t head position, index of a cell.
    */
-  [[nodiscard]] std::int64_t getPosition() const;
+  [[nodiscard]] std::size_t getPosition() const;
 
   /**
    * @brief Move head one cell left.
-   * 
-   * @param i move count.
    */
-  void moveLeft(std::size_t i = 1);
+  void moveLeft();
 
   /**
    * @brief Move head one cell right.
-   * 
-   * @param i move count.
    */
-  void moveRight(std::size_t i = 1);
+  void moveRight();
 
   /**
    * @brief Get tape cells count.
-   * 
+   *
    * @return std::size_t tape size.
    */
   [[nodiscard]] std::size_t getSize() const;
 
  private:
-  std::int64_t position_{0};
+  std::size_t position_{0};
   std::string filename_;
   std::size_t size_;
   std::fstream file_;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
-inline std::int64_t Tape::getPosition() const {
+inline std::size_t Tape::getPosition() const {
   return position_;
 }
 

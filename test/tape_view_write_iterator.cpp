@@ -184,7 +184,7 @@ TEST(TapeViewWriteIterator, ConstructLeftAndMove) {
 
       auto writeIterator = LeftWriteIterator(tapeView);
 
-      ++writeIterator;
+      EXPECT_THROW(++writeIterator, std::logic_error);
     }
 
     auto stats = tapePool.getStatistics();
@@ -193,28 +193,6 @@ TEST(TapeViewWriteIterator, ConstructLeftAndMove) {
     EXPECT_EQ(stats.readCnt, 0);
     EXPECT_EQ(stats.writeCnt, 0);
     EXPECT_EQ(stats.moveCnt, 1);
-  }
-
-  std::filesystem::remove(filename);
-}
-
-////////////////////////////////////////////////////////////////////////////////
-TEST(TapeViewWriteIterator, ConstructRightAndMoveOutOfRange) {
-  constexpr auto filename =
-      "construct_right_iterator_and_move_out_of_range_test_tape";
-  assert(!std::filesystem::remove(filename) &&
-         "File was not deleted on previous run.");
-
-  {
-    auto tapePool = TapePool();
-
-    {
-      auto tapeView = tapePool.createTape(filename, 1);
-      auto writeIterator = RightWriteIterator(tapeView);
-      tapeView.moveRight();
-
-      EXPECT_THROW(*writeIterator = 45, std::logic_error);
-    }
   }
 
   std::filesystem::remove(filename);
@@ -231,11 +209,12 @@ TEST(TapeViewWriteIterator, ConstructLeftAndMoveOutOfRange) {
     auto tapePool = TapePool();
 
     {
-      auto tapeView = tapePool.createTape(filename, 1);
+      auto tapeView = tapePool.createTape(filename, 2);
       auto writeIterator = LeftWriteIterator(tapeView);
-      tapeView.moveLeft();
+      tapeView.moveRight();
+      ++writeIterator;
 
-      EXPECT_THROW(*writeIterator = 34, std::logic_error);
+      EXPECT_THROW(++writeIterator, std::logic_error);
     }
   }
 

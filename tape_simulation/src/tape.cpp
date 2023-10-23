@@ -36,7 +36,7 @@ std::int32_t Tape::read() {
   }
   auto ret = std::int32_t{};
   file_.seekg(static_cast<std::ptrdiff_t>(position_ * cellSize));
-  file_ >> ret;
+  file_.read(reinterpret_cast<char*>(&ret), cellSize);
   return ret;
 }
 
@@ -49,7 +49,7 @@ void Tape::write(std::int32_t x) {
     throw std::logic_error(messageStream.str());
   }
   file_.seekp(static_cast<std::ptrdiff_t>(position_ * cellSize));
-  file_ << x;
+  file_.write(reinterpret_cast<const char*>(&x), cellSize);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

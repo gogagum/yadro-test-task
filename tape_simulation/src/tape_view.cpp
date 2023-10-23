@@ -22,7 +22,7 @@ void TapeView::write(std::int32_t x) {
 
 ////////////////////////////////////////////////////////////////////////////////
 void TapeView::moveLeft(std::size_t i) {
-  owner_ ->increaseMovesCnt(i);
+  owner_->increaseMovesCnt(i);
   tape_->moveLeft(i);
 }
 

@@ -4,17 +4,14 @@
 #include <merge_sort.hpp>
 #include <vector>
 
+#include "sort_test_utils.hpp"
+
 // NOLINTBEGIN(cppcoreguidelines-avoid-non-const-global-variables,
 // cppcoreguidelines-avoid-magic-numbers, cert-err58-cpp)
 
 namespace {
 
-struct MergeSortTestParam {
-  std::string testDescription;
-  std::vector<std::int32_t> values;
-};
-
-class MergeSortTest : public testing::TestWithParam<MergeSortTestParam> {};
+class MergeSortTest : public testing::TestWithParam<SortTestParam> {};
 
 TEST_P(MergeSortTest, MergeSortSimpl) {
   const auto& params = MergeSortTest::GetParam();
@@ -56,7 +53,7 @@ TEST_P(MergeSortTest, MergeSortSimpl) {
   std::filesystem::remove(outFilename);
 }
 
-static auto simpleMergeSortInputs = std::vector<MergeSortTestParam>{
+static auto simpleMergeSortInputs = std::vector<SortTestParam>{
     {"sort_only_element", {42}},
     {"sort_two_sorted_elements", {42, 57}},
     {"sort_two_unsorted_elements", {57, 42}},
@@ -79,6 +76,24 @@ INSTANTIATE_TEST_SUITE_P(SimpleTapesMergeSorts, MergeSortTest,
                          [](const auto& paramInfo) {
                            return paramInfo.param.testDescription;
                          });
+
+static auto twoPowSizedTestCases = generate_test_cases_of_sizes(42, 
+    {1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048});
+
+INSTANTIATE_TEST_SUITE_P(TwoPowSizedMergeSorts, MergeSortTest,
+                        testing::ValuesIn(twoPowSizedTestCases),
+                        [](const auto& paramInfo) {
+                          return paramInfo.param.testDescription;
+                        });
+
+static auto threePowSizedTestCases = generate_test_cases_of_sizes(42, 
+    {1, 3, 9, 27, 81, 243, 729});
+
+INSTANTIATE_TEST_SUITE_P(ThreePowSizedMergeSorts, MergeSortTest,
+                        testing::ValuesIn(threePowSizedTestCases),
+                        [](const auto& paramInfo) {
+                          return paramInfo.param.testDescription;
+                        });
 
 }  // namespace
 

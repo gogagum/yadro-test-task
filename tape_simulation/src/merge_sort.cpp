@@ -142,18 +142,17 @@ void MergeSort::mergeBlocks0_(TapeView& in0, TapeView& in1, TapeView& out0,
   auto [inTailSize0, inTailSize1] =
       calcTailsCounts_(inCnt0, inCnt1, opBlocksCnt.blocksIn1, blockSize);
 
-  processPartialBlocks_<Order_::increasing, true>(read0, inTailSize0, read1,
-                                                  inTailSize1, write0);
-
-  assert(out0.getPosition() == inTailSize0);
-  assert(out1.getPosition() == inTailSize1);
+  if (inTailSize0 + inTailSize1 != 0) {
+    processPartialBlocks_<Order_::increasing, true>(read0, inTailSize0, read1,
+                                                    inTailSize1, tailWrite);
+  }
 
   processBlocksPairs_<Order_::increasing>(read0, read1, write0,
                                           opBlocksCnt.blocksOut0, write1,
                                           opBlocksCnt.blocksOut1, blockSize);
 
-  const auto [outCnt0, outCnt1] =
-      calcCounts_(opBlocksCnt.blocksOut0, opBlocksCnt.blocksOut1, blockSize * 2);
+  const auto [outCnt0, outCnt1] = calcCounts_(
+      opBlocksCnt.blocksOut0, opBlocksCnt.blocksOut1, blockSize * 2);
 
   checkFinishPositions_(in0, in1, out0, out1, outCnt0, outCnt1);
 }

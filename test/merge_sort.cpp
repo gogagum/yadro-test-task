@@ -2,101 +2,85 @@
 
 #include <filesystem>
 #include <merge_sort.hpp>
+#include <vector>
 
 // NOLINTBEGIN(cppcoreguidelines-avoid-non-const-global-variables,
 // cppcoreguidelines-avoid-magic-numbers, cert-err58-cpp)
 
-////////////////////////////////////////////////////////////////////////////////
-TEST(MergeSort, DoNothing) {
-  constexpr auto filename = "do_nothing_sort_test";
-  assert(!std::filesystem::remove(filename) && "File was not removed.");
-  auto tapePool = TapePool();
-  tapePool.createTape(filename, 10);
+namespace {
 
-  auto sort = MergeSort(tapePool, filename, "tmp");
+struct MergeSortTestParam {
+  std::string testDescription;
+  std::vector<std::int32_t> values;
+};
 
-  std::filesystem::remove(filename);
-}
+class MergeSortTest : public testing::TestWithParam<MergeSortTestParam> {};
 
-////////////////////////////////////////////////////////////////////////////////
-TEST(MergeSort, SortEmpty) {
-  constexpr auto filename = "sort_empty_test";
-  constexpr auto outFilename = "sort_empty_test_out";
-  assert(!std::filesystem::remove(filename) && "File was not removed.");
-  assert(!std::filesystem::remove(outFilename) && "File was not removed.");
+TEST_P(MergeSortTest, MergeSortSimpl) {
+  const auto& params = MergeSortTest::GetParam();
+  const auto inFilename = params.testDescription + "_in_file";
+  const auto outFilename = params.testDescription + "_out_file";
 
-  {
-    auto tapePool = TapePool();
-    tapePool.createTape(filename, 0);
+  const bool inDeleted = std::filesystem::remove(inFilename);
+  const bool outDeleted = std::filesystem::remove(outFilename);
 
-    MergeSort(tapePool, filename, "tmp").perform(outFilename);
-  }
-
-  std::filesystem::remove(filename);
-  std::filesystem::remove(outFilename);
-}
-
-////////////////////////////////////////////////////////////////////////////////
-TEST(MergeSort, SortOneElement) {
-  constexpr auto filename = "sort_one_element_test";
-  constexpr auto outFilename = "sort_one_element_test_out";
-
-  assert(!std::filesystem::remove(filename) && "File was not removed.");
-  assert(!std::filesystem::remove(outFilename) && "File was not removed.");
-
-  {
-    auto tapePool = TapePool();
-    auto tv = tapePool.createTape(filename, 1);
-    tv.write(42);
-
-    MergeSort(tapePool, filename, "tmp").perform(outFilename);
-
-    auto outTv = tapePool.getOpenedTape(outFilename);
-    EXPECT_EQ(outTv.getPosition(), 1);
-    outTv.moveLeft();
-    EXPECT_EQ(outTv.read(), 42);
-  }
-
-  std::filesystem::remove(filename);
-  std::filesystem::remove(outFilename);
-}
-
-////////////////////////////////////////////////////////////////////////////////
-/*
-TEST(MergeSort, SortTwoSorted) {
-  constexpr auto filename = "sort_two_sorted_test";
-  constexpr auto outFilename = "sort_two_sorted_test_out";
-
-  std::filesystem::remove(filename);
-  std::filesystem::remove(outFilename);
   std::filesystem::remove_all("tmp");
 
-  //assert(!std::filesystem::remove(filename) && "File was not removed.");
-  //assert(!std::filesystem::remove(outFilename) && "File was not removed.");
+  //assert(!(inDeleted || outDeleted) && "File was not removed.");
 
   {
     auto tapePool = TapePool();
-    auto tv = tapePool.createTape(filename, 2);
-    tv.write(42);
-    tv.moveRight();
-    tv.write(57);
-    tv.moveLeft();
+    auto inTape = tapePool.createTape(inFilename, params.values.size());
+    copy_n(params.values.begin(), params.values.size(),
+           RightWriteIterator(inTape));
+    inTape.moveLeft(inTape.getPosition());
 
-    MergeSort(tapePool, filename, "tmp").perform(outFilename);
+    MergeSort(tapePool, inFilename, "tmp").perform(outFilename);
 
-    auto outTv = tapePool.getOpenedTape(outFilename);
-    EXPECT_EQ(outTv.getPosition(), 2);
-    outTv.moveLeft();
-    EXPECT_EQ(outTv.read(), 57);
-    outTv.moveLeft();
-    EXPECT_EQ(outTv.read(), 42);
+    auto outTape = tapePool.getOpenedTape(outFilename);
+    outTape.moveLeft(outTape.getPosition());
+
+    auto result = std::vector<std::int32_t>{};
+
+    copy_n(RightReadIterator(outTape), params.values.size(),
+           std::back_inserter(result));
+
+    auto expected = std::vector<std::int32_t>(params.values);
+    std::sort(expected.begin(), expected.end());
+
+    EXPECT_EQ(expected.size(), result.size());
+    EXPECT_TRUE(std::equal(expected.begin(), expected.end(), result.begin()));
   }
 
-  std::filesystem::remove(filename);
+  std::filesystem::remove(inFilename);
   std::filesystem::remove(outFilename);
 }
-*/
 
+static auto simpleMergeSortInputs = std::vector<MergeSortTestParam>{
+    {"sort_only_element", {42}},
+    {"sort_two_sorted_elements", {42, 57}},
+    {"sort_two_unsorted_elements", {57, 42}},
+    {"sort_two_equal_elements", {42, 42}},
+    {"sort_three_elements", {1, 3, 2}},
+    {"sort_three_equal", {1, 1, 1}},
+    {"sort_three_sorted", {1, 2, 3}},
+    {"sort_four", {2, 3, 1, 4}},
+    {"sort_four_sorted", {1, 2, 3, 4}},
+    {"sort_four_decreasing", {4, 3, 2, 1}},
+    {"sort_five", {5, 3, 2, 1, 4}},
+    {"sort_five2", {5, 1, 2, 4, 3}},
+    {"sort_five_sorted", {1, 2, 3, 4, 5}},
+    {"sort_five_decreasing", {5, 4, 3, 2, 1}},
+    {"sort_10", {9, 4, 5, 3, 1, 2, 7, 8, 6, 10}}
+};
+
+INSTANTIATE_TEST_SUITE_P(SimpleTapesMergeSorts, MergeSortTest,
+                         testing::ValuesIn(simpleMergeSortInputs),
+                         [](const auto& paramInfo) {
+                           return paramInfo.param.testDescription;
+                         });
+
+}  // namespace
 
 // NOLINTEND(cppcoreguidelines-avoid-non-const-global-variables,
 // cppcoreguidelines-avoid-magic-numbers, cert-err58-cpp)

@@ -22,7 +22,7 @@ struct MergeTestParam {
 /// class MergeTest for doing TEST_P
 class MergeTest : public testing::TestWithParam<MergeTestParam> {};
 
-TEST_P(MergeTest, MergeSimpl) {
+TEST_P(MergeTest, MergeSimple) {
   const auto& params = MergeTest::GetParam();
 
   auto result = std::vector<int>{};

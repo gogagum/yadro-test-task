@@ -76,7 +76,6 @@ class TapeView {
  private:
   Tape* tape_;
   TapePool* owner_;
-  std::size_t position_{0};
   std::size_t size_;
   std::fstream file_;
 

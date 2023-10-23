@@ -1,8 +1,8 @@
 #include <array>
 #include <cassert>
+#include <filesystem>
 #include <merge_sort.hpp>
 #include <tape_pool.hpp>
-#include <filesystem>
 
 #include "merge.hpp"
 #include "tape_view_read_iterators.hpp"
@@ -10,7 +10,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 MergeSort::MergeSort(TapePool& tapePool, std::string_view inFilename,
-                            std::string_view tmpDirectory)
+                     std::string_view tmpDirectory)
     : tapePool_{&tapePool},
       elementsCnt_{tapePool_->getOrOpenTape(inFilename).getSize()},
       inFilename_{inFilename},
@@ -46,11 +46,9 @@ void MergeSort::perform(std::string_view outFilename) && {
   const std::string tmpTapeName11 = tmpDirectory_ + "/tmpTape11";
 
   auto tape00 = tapePool_->createTape(tmpTapeName00, maxBlockSize);
-  auto tape01 =
-      tapePool_->createTape(tmpTapeName01, elementsCnt_ - maxBlockSize);
+  auto tape01 = tapePool_->createTape(tmpTapeName01, maxBlockSize);
   auto tape10 = tapePool_->createTape(tmpTapeName10, maxBlockSize);
-  auto tape11 =
-      tapePool_->createTape(tmpTapeName11, elementsCnt_ - maxBlockSize);
+  auto tape11 = tapePool_->createTape(tmpTapeName11, maxBlockSize);
 
   {
     auto out0 = tapePool_->getOpenedTape(tmpTapeName00);
@@ -58,37 +56,36 @@ void MergeSort::perform(std::string_view outFilename) && {
     makeInitialBlocks_(inTape, out0, out1);
   }
 
-  std::size_t iteration = 0;
+  std::size_t iterationsLeft = iterationsCnt;
   std::size_t blockSize = 1;
 
-  for (; iteration < iterationsCnt; ++iteration, blockSize *= 2) {
-    if (iteration % 2 == 0) {
-      mergeBlocksLeft_(tape00, tape01, tape10, tape11, blockSize);
-      tape00.moveRight();
-      tape01.moveRight();
-      tape10.moveRight();
-      tape10.moveRight();
+  for (; iterationsLeft > 0; --iterationsLeft, blockSize *= 2) {
+    std::size_t iterationIdx = iterationsCnt - iterationsLeft;
+    auto& in0 = (iterationIdx % 2 == 0) ? tape00 : tape10;
+    auto& in1 = (iterationIdx % 2 == 0) ? tape01 : tape11;
+    auto& out0 = (iterationIdx % 2 == 0) ? tape10 : tape00;
+    auto& out1 = (iterationIdx % 2 == 0) ? tape11 : tape01;
+
+    if (iterationsLeft % 2 == 1) {
+      mergeBlocks1_(in0, in1, out0, out1, blockSize);
     } else {
-      mergeBlocksRight_(tape10, tape11, tape00, tape01, blockSize);
-      tape00.moveLeft();
-      tape01.moveLeft();
-      tape10.moveLeft();
-      tape10.moveLeft();
+      mergeBlocks0_(in0, in1, out0, out1, blockSize);
     }
   }
 
-  if (iteration % 2 == 0) {  // resulting merge is left
-    outTape.moveRight(elementsCnt_ - 1);
+  auto& inTape0 = (iterationsCnt % 2 == 0) ? tape00 : tape10;
+  auto& inTape1 = (iterationsCnt % 2 == 0) ? tape01 : tape11;
 
-    merge_decreasing(LeftReadIterator(tape00), blockSize,
-                     LeftReadIterator(tape01), elementsCnt_ - blockSize,
-                     LeftWriteIterator(outTape));
-    outTape.moveRight(elementsCnt_ + 1);
-  } else {
-    merge_increasing(RightReadIterator(tape10), blockSize,
-                     RightReadIterator(tape11), elementsCnt_ - blockSize,
-                     RightWriteIterator(outTape));
-  }
+  assert(inTape0.getPosition() + 1 == maxBlockSize &&
+         "First final tape must contain full max block.");
+  assert(inTape1.getPosition() + 1 == elementsCnt_ - maxBlockSize &&
+         "Second final tape must contain rest elements.");
+
+  auto in0 = LeftReadIterator(inTape0);
+  auto in1 = LeftReadIterator(inTape1);
+  auto out = RightWriteIterator(outTape);
+
+  merge_increasing(in0, maxBlockSize, in1, elementsCnt_ - maxBlockSize, out);
 
   tapePool_->removeTape(tmpTapeName00);
   tapePool_->removeTape(tmpTapeName01);
@@ -119,134 +116,137 @@ void MergeSort::makeInitialBlocks_(TapeView& in, TapeView& out0,
                                    TapeView& out1) const {
   const auto [to0Cnt, to1Cnt] = getBlocksCnts_(1);
   auto read = RightReadIterator(in);
-  std::copy_n(read, to0Cnt, RightWriteIterator(out0));
-  std::copy_n(read, to1Cnt, RightWriteIterator(out1));
-  out0.moveLeft();
-  out1.moveLeft();
+  copy_n(read, to0Cnt, RightWriteIterator(out0));
+  ++read;
+  copy_n(read, to1Cnt, RightWriteIterator(out1));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void MergeSort::mergeBlocksRight_(TapeView& in0, TapeView& in1, TapeView& out0,
-                                  TapeView& out1, std::size_t blockSize) const {
-  assert(in0.getPosition() == 0 &&
-         "Right merge must start from zero position.");
-  assert(in1.getPosition() == 0 &&
-         "Right merge must start from zero position.");
+void MergeSort::mergeBlocks0_(TapeView& in0, TapeView& in1, TapeView& out0,
+                              TapeView& out1, std::size_t blockSize) const {
+  const auto opBlocksCnt = calcOperationBlocksCnts_(blockSize);
 
-  const auto inBlocksCnt = getBlocksCnt_(blockSize);
-  const auto [inBlocksCnt0, inBlocksCnt1] = getBlocksCnts_(blockSize);
+  const auto [inCnt0, inCnt1] =
+      calcCounts_(opBlocksCnt.blocksIn0, opBlocksCnt.blocksIn1, blockSize);
 
-  const auto outBlocksSize = blockSize * 2;
-  const auto outBlocksCnt = getBlocksCnt_(outBlocksSize);
-  assert(outBlocksCnt >= 1 && "Must create at least one block.");
-  const auto [outBlocksCnt0, outBlocksCnt1] = getBlocksCnts_(outBlocksSize);
-
-  assert(inBlocksCnt1 >= outBlocksCnt && "Must have enough blocks to merge.");
-
-  auto read0 = RightReadIterator(in0);
-  auto read1 = RightReadIterator(in1);
-
-  auto write0 = RightWriteIterator(out0);
-  auto write1 = RightWriteIterator(out1);
-
-  std::size_t mergedBlockPairIdx = 0;
-
-  for (std::size_t i = 0; i < outBlocksCnt0; ++i, ++mergedBlockPairIdx) {
-    merge_increasing(read0, blockSize, read1, blockSize, write0);
-  }
-
-  for (std::size_t i = 0; i < outBlocksCnt1; ++i, ++mergedBlockPairIdx) {
-    merge_increasing(read0, blockSize, read1, blockSize, write1);
-  }
-
-  const auto elementsLeft = elementsCnt_ - mergedBlockPairIdx * blockSize;
-  auto& tailWrite = (outBlocksCnt % 2 == 0) ? write0 : write1;
-
-  if (inBlocksCnt % 2 == 0) {
-    std::copy_n(read0, elementsLeft, tailWrite);
-  } else {
-    const auto elementsLeft0 = blockSize;
-    const auto elementsLeft1 = elementsLeft - elementsLeft0;
-    merge_increasing(read0, elementsLeft0, read1, elementsLeft1, tailWrite);
-  }
-
-  assert(in0.getPosition() + in1.getPosition() == elementsCnt_ &&
-         "Must read all.");
-  assert(out0.getPosition() + out1.getPosition() == elementsCnt_ &&
-         "Must write all.");
-}
-
-////////////////////////////////////////////////////////////////////////////////
-void MergeSort::mergeBlocksLeft_(TapeView& in0, TapeView& in1, TapeView& out0,
-                                 TapeView& out1, std::size_t blockSize) const {
-  const auto inBlocksCnt = getBlocksCnt_(blockSize);
-  const auto [inBlocksCnt0, inBlocksCnt1] = getBlocksCnts_(blockSize);
-
-  const auto inCnt0 = (inBlocksCnt % 2 == 0)
-                          ? elementsCnt_ - inBlocksCnt1 * blockSize
-                          : inBlocksCnt0 * blockSize;
-
-  const auto inCnt1 = (inBlocksCnt % 2 == 0)
-                          ? inBlocksCnt1 * blockSize
-                          : elementsCnt_ - inBlocksCnt0 * blockSize;
-
-  assert(in0.getPosition() == inCnt0 - 1 &&
-         "in0 must be positioned on the last element after right merge.");
-
-  assert(in1.getPosition() == inCnt1 - 1 &&
-         "in1 must be positioned on the last element after right merge.");
-
-  const auto outBlockSize = blockSize * 2;
-  const auto outBlocksCnt = getBlocksCnt_(outBlockSize);
-  const auto [outBlocksCnt0, outBlocksCnt1] = getBlocksCnts_(outBlockSize);
-
-  const auto outElements0 = outBlockSize * outBlocksCnt0;
-  const auto outElements1 = elementsCnt_ - outElements0;
-  const auto neededPosition0 = outElements0 - 1;
-  const auto neededPosition1 = outElements1 - 1;
-
-  assert(out0.getPosition() <= neededPosition0);
-  const auto toMove0 = neededPosition0 - out0.getPosition();
-  assert(out1.getPosition() >= neededPosition1);
-  const auto toMove1 = out1.getPosition() - neededPosition1;
-  assert(toMove0 == toMove1);
-
-  out0.moveRight(toMove0);
-  out1.moveLeft(toMove1);
+  checkStartPositions_(in0, in1, out0, out1, inCnt0, inCnt1);
 
   auto read0 = LeftReadIterator(in0);
   auto read1 = LeftReadIterator(in1);
 
-  auto write0 = LeftWriteIterator(out0);
-  auto write1 = LeftWriteIterator(out1);
+  auto write0 = RightWriteIterator(out0);
+  auto write1 = RightWriteIterator(out1);
 
-  auto& tailWrite = (outBlocksCnt % 2 == 0) ? write0 : write1;
+  auto& tailWrite = (opBlocksCnt.blocksOut % 2 == 0) ? write0 : write1;
 
-  if (inBlocksCnt % 2 == 0) {
-    const auto tailSize = inCnt0 - inBlocksCnt0 * blockSize;
-    std::copy_n(read0, tailSize, tailWrite);
-  } else {
-    const auto tailSize = inCnt1 - inBlocksCnt1 * blockSize;
-    merge_decreasing(read0, blockSize, read1, tailSize, tailWrite);
-  }
+  auto [inTailSize0, inTailSize1] =
+      calcTailsCounts_(inCnt0, inCnt1, opBlocksCnt.blocksIn1, blockSize);
 
-  assert(in0.getPosition() == in1.getPosition() &&
-         "In tapes must be in same positions.");
+  processPartialBlocks_<Order_::increasing, true>(read0, inTailSize0, read1,
+                                                  inTailSize1, write0);
 
-  for (std::size_t i = 0; i < outBlocksCnt0; ++i) {
-    merge_decreasing(read0, blockSize, read1, blockSize, write0);
-  }
+  assert(out0.getPosition() == inTailSize0);
+  assert(out1.getPosition() == inTailSize1);
 
-  for (std::size_t i = 0; i < outBlocksCnt1; ++i) {
-    merge_decreasing(read0, blockSize, read1, blockSize, write1);
-  }
+  processBlocksPairs_<Order_::increasing>(read0, read1, write0,
+                                          opBlocksCnt.blocksOut0, write1,
+                                          opBlocksCnt.blocksOut1, blockSize);
 
-  assert(in0.getPosition() == -1 && "in0 must come to the beginning.");
-  assert(in1.getPosition() == -1 && "in1 must come to the beginning.");
-  assert(out0.getPosition() == -1 && "out0 must come to the beginning.");
-  assert(out1.getPosition() == -1 && "out1 must come to the beginning.");
+  const auto [outCnt0, outCnt1] =
+      calcCounts_(opBlocksCnt.blocksOut0, opBlocksCnt.blocksOut1, blockSize * 2);
+
+  checkFinishPositions_(in0, in1, out0, out1, outCnt0, outCnt1);
 }
 
-//MergeSort::~MergeSort() {
-//  
-//}
+////////////////////////////////////////////////////////////////////////////////
+void MergeSort::mergeBlocks1_(TapeView& in0, TapeView& in1, TapeView& out0,
+                              TapeView& out1, std::size_t blockSize) const {
+  const auto opBlocksCnt = calcOperationBlocksCnts_(blockSize);
+
+  const auto [inCnt0, inCnt1] =
+      calcCounts_(opBlocksCnt.blocksIn0, opBlocksCnt.blocksIn1, blockSize);
+
+  checkStartPositions_(in0, in1, out0, out1, inCnt0, inCnt1);
+
+  auto read0 = LeftReadIterator(in0);
+  auto read1 = LeftReadIterator(in1);
+
+  auto write0 = RightWriteIterator(out0);
+  auto write1 = RightWriteIterator(out1);
+
+  processBlocksPairs_<Order_::decreasing>(read0, read1, write0,
+                                          opBlocksCnt.blocksOut0, write1,
+                                          opBlocksCnt.blocksOut1, blockSize);
+
+  auto& tailWrite = (opBlocksCnt.blocksOut % 2 == 0) ? write0 : write1;
+
+  auto [inTailSize0, inTailSize1] =
+      calcTailsCounts_(inCnt0, inCnt1, opBlocksCnt.blocksIn1, blockSize);
+
+  if (inTailSize0 != 0 && opBlocksCnt.blocksOut != 0) {
+    ++read0;
+  }
+
+  if (inTailSize1 != 0 && opBlocksCnt.blocksOut != 0) {
+    ++read1;
+  }
+
+  if (inTailSize0 != 0 || inTailSize1 != 0) {
+    if (opBlocksCnt.blocksOut1 != 0) {
+      ++tailWrite;
+    }
+    processPartialBlocks_<Order_::decreasing, false>(read0, inTailSize0, read1,
+                                                     inTailSize1, tailWrite);
+  }
+
+  const auto [outCnt0, outCnt1] = calcCounts_(
+      opBlocksCnt.blocksOut0, opBlocksCnt.blocksOut1, blockSize * 2);
+
+  checkFinishPositions_(in0, in1, out0, out1, outCnt0, outCnt1);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+auto MergeSort::calcOperationBlocksCnts_(std::size_t blockSize) const
+    -> OperationBlocksCnts_ {
+  auto inBlocksCnt = getBlocksCnt_(blockSize);
+  auto [inBlocksCnt0, inBlocksCnt1] = getBlocksCnts_(blockSize);
+  auto outBlockCnt = getBlocksCnt_(blockSize * 2);
+  auto [outBlockCnt0, outBlockCnt1] = getBlocksCnts_(blockSize * 2);
+  return {inBlocksCnt, inBlocksCnt0, inBlocksCnt1,
+          outBlockCnt, outBlockCnt0, outBlockCnt1};
+}
+
+////////////////////////////////////////////////////////////////////////////////
+auto MergeSort::calcCounts_(std::size_t blocksCnt0, std::size_t blocksCnt1,
+                            std::size_t blockSize) const -> Counts_ {
+  const auto blocksCnt = blocksCnt0 + blocksCnt1;
+  if (blocksCnt % 2 == 0) {
+    assert(blocksCnt0 == blocksCnt1);
+    return {elementsCnt_ - blocksCnt1 * blockSize, blocksCnt1 * blockSize};
+  } else {
+    assert(blocksCnt0 == blocksCnt1 + 1);
+    return {blocksCnt0 * blockSize, elementsCnt_ - blocksCnt0 * blockSize};
+  }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void MergeSort::checkStartPositions_(TapeView& in0, TapeView& in1,
+                                     TapeView& out0, TapeView& out1,
+                                     std::size_t inCnt0Expected,
+                                     std::size_t inCnt1Expected) const {
+  assert(in0.getPosition() + 1 == inCnt0Expected);
+  assert(in1.getPosition() + 1 == inCnt1Expected);
+  assert(out0.getPosition() == 0);
+  assert(out1.getPosition() == 0);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void MergeSort::checkFinishPositions_(TapeView& in0, TapeView& in1,
+                                      TapeView& out0, TapeView& out1,
+                                      std::size_t outCnt0Expected,
+                                      std::size_t outCnt1Expected) const {
+  assert(in0.getPosition() == 0);
+  assert(in1.getPosition() == 0);
+  assert(out0.getPosition() + 1 == outCnt0Expected);
+  assert(out1.getPosition() + 1 == outCnt1Expected);
+}

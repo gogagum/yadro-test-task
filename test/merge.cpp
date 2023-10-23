@@ -5,18 +5,12 @@
 #include <merge.hpp>
 #include <random>
 
+#include "merge_test_utils.hpp"
+
 // NOLINTBEGIN(cppcoreguidelines-avoid-non-const-global-variables,
 // cert-err58-cpp)
 
 namespace {
-////////////////////////////////////////////////////////////////////////////////
-/// class MergeTestParam - simple tapes merge parameter type
-struct MergeTestParam {
-  std::string description;
-  std::vector<std::int32_t> input0;
-  std::vector<std::int32_t> input1;
-  bool increasing;
-};
 
 ////////////////////////////////////////////////////////////////////////////////
 /// class MergeTest for doing TEST_P
@@ -62,6 +56,26 @@ static auto simpleMergesInputs = std::vector<MergeTestParam>{
 
 INSTANTIATE_TEST_SUITE_P(SimpleTapesMerges, MergeTest,
                          testing::ValuesIn(simpleMergesInputs),
+                         [](const auto& paramInfo) {
+                           return paramInfo.param.description;
+                         });
+
+const static auto generatedIncreasingMergeInputs =
+    generate_merge_tapes_test_cases_of_sizes(
+        42, true, {{2, 3}, {5, 5}, {6, 10}, {15, 16}, {31, 44}});
+
+INSTANTIATE_TEST_SUITE_P(GeneratedIncreasingMerges, MergeTest,
+                         testing::ValuesIn(generatedIncreasingMergeInputs),
+                         [](const auto& paramInfo) {
+                           return paramInfo.param.description;
+                         });
+
+const static auto generatedDecreasingMergeInputs =
+    generate_merge_tapes_test_cases_of_sizes(
+        42, false, {{2, 3}, {5, 5}, {6, 10}, {15, 16}, {31, 44}});
+
+INSTANTIATE_TEST_SUITE_P(GeneratedDecreasingMerges, MergeTest,
+                         testing::ValuesIn(generatedDecreasingMergeInputs),
                          [](const auto& paramInfo) {
                            return paramInfo.param.description;
                          });

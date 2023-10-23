@@ -7,23 +7,16 @@
 #include <tape_view_read_iterators.hpp>
 #include <tape_view_write_iterators.hpp>
 
+#include "merge_test_utils.hpp"
+
 // NOLINTBEGIN(cppcoreguidelines-avoid-magic-numbers, readability-magic-numbers,
 // cert-err58-cpp)
 
 namespace {
 
 ////////////////////////////////////////////////////////////////////////////////
-/// class MergeTapesTestParam - simple tapes merge parameter type
-struct MergeTapesTestParam {
-  std::string description;
-  std::vector<std::int32_t> input0;
-  std::vector<std::int32_t> input1;
-  bool increasing;
-};
-
-////////////////////////////////////////////////////////////////////////////////
 /// class MergeTapesTest for doing TEST_P
-class MergeTapesTest : public testing::TestWithParam<MergeTapesTestParam> {};
+class MergeTapesTest : public testing::TestWithParam<MergeTestParam> {};
 
 /**
  * Test of simple merging on tapes.
@@ -110,7 +103,7 @@ TEST_P(MergeTapesTest, MergeSimple) {
   std::filesystem::remove(outTapeName);
 }
 
-static auto simpleMergesInputs = std::vector<MergeTapesTestParam>{
+static auto simpleMergesInputs = std::vector<MergeTestParam>{
     {"merge_one_elements_tapes_increasing", {42}, {57}, true},
     {"merge_one_elements_tapes_decreasing", {42}, {57}, false},
     {"merge_one_element_and_multiple_increasing", {33}, {12, 24, 37}, true},
@@ -124,6 +117,26 @@ static auto simpleMergesInputs = std::vector<MergeTapesTestParam>{
 
 INSTANTIATE_TEST_SUITE_P(SimpleTapesMerges, MergeTapesTest,
                          testing::ValuesIn(simpleMergesInputs),
+                         [](const auto& paramInfo) {
+                           return paramInfo.param.description;
+                         });
+
+const static auto generatedIncreasingMergeInputs =
+    generate_merge_tapes_test_cases_of_sizes(
+        42, true, {{2, 3}, {5, 5}, {6, 10}, {15, 16}, {31, 44}});
+
+INSTANTIATE_TEST_SUITE_P(GeneratedIncreasingMerges, MergeTapesTest,
+                         testing::ValuesIn(generatedIncreasingMergeInputs),
+                         [](const auto& paramInfo) {
+                           return paramInfo.param.description;
+                         });
+
+const static auto generatedDecreasingMergeInputs =
+    generate_merge_tapes_test_cases_of_sizes(
+        42, false, {{2, 3}, {5, 5}, {6, 10}, {15, 16}, {31, 44}});
+
+INSTANTIATE_TEST_SUITE_P(GeneratedDecreasingMerges, MergeTapesTest,
+                         testing::ValuesIn(generatedDecreasingMergeInputs),
                          [](const auto& paramInfo) {
                            return paramInfo.param.description;
                          });

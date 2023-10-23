@@ -13,7 +13,7 @@ namespace {
 
 class MergeSortTest : public testing::TestWithParam<SortTestParam> {};
 
-TEST_P(MergeSortTest, MergeSortSimpl) {
+TEST_P(MergeSortTest, MergeSortCompareWithStdSort) {
   const auto& params = MergeSortTest::GetParam();
   const auto inFilename = params.testDescription + "_in_file";
   const auto outFilename = params.testDescription + "_out_file";

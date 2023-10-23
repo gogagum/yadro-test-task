@@ -2,14 +2,15 @@
 #define TAPE_SIMULATION_MERGE_SORT_HPP
 
 #include <cassert>
-#include <copy_n.hpp>
-#include <merge.hpp>
 #include <string>
 #include <string_view>
-#include <tape_pool.hpp>
-#include <tape_view.hpp>
-#include <tape_view_read_iterators.hpp>
-#include <tape_view_write_iterators.hpp>
+
+#include "copy_n.hpp"
+#include "merge.hpp"
+#include "tape_pool.hpp"
+#include "tape_view.hpp"
+#include "tape_view_read_iterators.hpp"
+#include "tape_view_write_iterators.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \brief class MergeSort - merge sort class.
@@ -247,4 +248,4 @@ void MergeSort::processBlocksPairs_(
   }
 }
 
-#endif
+#endif  // TAPE_SIMULATION_MERGE_SORT_HPP

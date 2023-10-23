@@ -80,4 +80,4 @@ inline auto TapePoolStatisticsBase::getStatistics() const
   return statistics_;
 }
 
-#endif
+#endif  // TAPE_SIMULATION_TAPE_POOL_STATISTICS_BASE_HPP

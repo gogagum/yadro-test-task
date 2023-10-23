@@ -1,9 +1,10 @@
-#ifndef TAPE_SIMULATION_READ_ITERATOR_BASE_HPP
-#define TAPE_SIMULATION_READ_ITERATOR_BASE_HPP
+#ifndef TAPE_SIMULATION_IMPL_READ_ITERATOR_BASE_HPP
+#define TAPE_SIMULATION_IMPL_READ_ITERATOR_BASE_HPP
 
 #include <cstdint>
 #include <optional>
-#include <tape_view.hpp>
+
+#include "../tape_view.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \brief class ReadIteratorBase
@@ -14,6 +15,7 @@ class ReadIteratorBase {
   typename std::int32_t operator*();
   bool operator==(const Derived& other) const;
   bool operator!=(const Derived& other) const;
+  Derived operator++(int);
 
  protected:
   [[nodiscard]] TapeView& getTapeView_() const;
@@ -48,8 +50,16 @@ inline bool ReadIteratorBase<Derived>::operator!=(const Derived& other) const {
 
 ////////////////////////////////////////////////////////////////////////////////
 template <class Derived>
+inline Derived ReadIteratorBase<Derived>::operator++(int) {
+  Derived ret = *static_cast<Derived*>(this);
+  static_cast<Derived*>(this)->operator++();
+  return ret;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+template <class Derived>
 inline TapeView& ReadIteratorBase<Derived>::getTapeView_() const {
   return *tapeView_;
 }
 
-#endif  // TAPE_SIMULATION_READ_ITERATOR_BASE_HPP
+#endif  // TAPE_SIMULATION_IMPL_READ_ITERATOR_BASE_HPP

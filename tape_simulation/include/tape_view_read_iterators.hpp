@@ -2,7 +2,6 @@
 #define TAPE_SIMULATION_READ_ITERATORS_HPP
 
 #include <iterator>
-#include <tape_view.hpp>
 
 #include "impl/read_iterator_base.hpp"
 
@@ -15,11 +14,13 @@ class RightReadIterator : public ReadIteratorBase<RightReadIterator> {
   using difference_type = void;
   using pointer = std::int32_t*;
   using reference = std::int32_t;
+
  public:
   using ReadIteratorBase::ReadIteratorBase;
   using ReadIteratorBase::operator*;
   RightReadIterator& operator++();
-  RightReadIterator operator++(int);
+  // RightReadIterator operator++(int);
+  // Postfix increment operator is created in base class from prefix increment.
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -31,11 +32,13 @@ class LeftReadIterator : public ReadIteratorBase<LeftReadIterator> {
   using difference_type = void;
   using pointer = std::int32_t*;
   using reference = std::int32_t;
+
  public:
   using ReadIteratorBase::ReadIteratorBase;
   using ReadIteratorBase::operator*;
   LeftReadIterator& operator++();
-  LeftReadIterator operator++(int);
+  // LeftReadIterator operator++(int);
+  // Postfix increment operator is created in base class from prefix increment.
 };
 
 #endif  // TAPE_SIMULATION_READ_ITERATORS_HPP

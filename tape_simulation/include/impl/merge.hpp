@@ -2,27 +2,28 @@
 #define TAPE_SIMULATION_IMPL_MERGE_HPP
 
 #include <algorithm>
-#include <copy_n.hpp>
+#include <cassert>
 #include <cstdint>
 #include <optional>
-#include <cassert>
+
+#include "../copy_n.hpp"
 
 /**
  * @brief merge two ranges of lengths `cnt0` and `cnt1` doing `cnt0 + cnt1`
  * reads (dereferences), `cnt0 - 1` first input iterator increments,
  * `cnt1 - 1` second iterator increments and `cnt0 + cnt1 - 1` output iterator
  * increments. Returns output iterator to a last output element.
- * 
- * @tparam InputIterator1 
- * @tparam InputIterator2 
- * @tparam OutputIterator 
- * @tparam Compare 
- * @param source0 
- * @param cnt0 
- * @param source1 
- * @param cnt1 
- * @param target 
- * @return OutputIterator 
+ *
+ * @tparam InputIterator1
+ * @tparam InputIterator2
+ * @tparam OutputIterator
+ * @tparam Compare
+ * @param source0
+ * @param cnt0
+ * @param source1
+ * @param cnt1
+ * @param target
+ * @return OutputIterator
  */
 template <class InputIterator1, class InputIterator2, class OutputIterator,
           class Compare>
@@ -80,4 +81,4 @@ OutputIterator merge(InputIterator1 source0, std::size_t cnt0,
   return target;
 }
 
-#endif  // TAPE_SIMULATION_MERGE_HPP
+#endif  // TAPE_SIMULATION_IMPL_MERGE_HPP

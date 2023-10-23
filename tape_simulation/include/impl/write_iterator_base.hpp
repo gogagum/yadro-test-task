@@ -1,9 +1,10 @@
-#ifndef TAPE_SIMULATION_WRITE_ITERATOR_BASE_HPP
-#define TAPE_SIMULATION_WRITE_ITERATOR_BASE_HPP
+#ifndef TAPE_SIMULATION_IMPL_WRITE_ITERATOR_BASE_HPP
+#define TAPE_SIMULATION_IMPL_WRITE_ITERATOR_BASE_HPP
 
 #include <cstdint>
 #include <optional>
-#include <tape_view.hpp>
+
+#include "../tape_view.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \brief class WriteIteratorBase
@@ -22,6 +23,7 @@ class WriteIteratorBase {
  public:
   explicit WriteIteratorBase(TapeView& tv);
   WriteRef operator*();
+  Derived operator++(int);
 
  protected:
   TapeView& getTapeView_();
@@ -58,8 +60,16 @@ inline auto WriteIteratorBase<Derived>::operator*() -> WriteRef {
 
 ////////////////////////////////////////////////////////////////////////////////
 template <class Derived>
+inline Derived WriteIteratorBase<Derived>::operator++(int) {
+  Derived ret = *static_cast<Derived*>(this);
+  static_cast<Derived*>(this)->operator++();
+  return ret;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+template <class Derived>
 inline TapeView& WriteIteratorBase<Derived>::getTapeView_() {
   return *tapeView_;
 }
 
-#endif  // TAPE_SIMULATION_WRITE_ITERATOR_BASE_HPP
+#endif  // TAPE_SIMULATION_IMPL_WRITE_ITERATOR_BASE_HPP

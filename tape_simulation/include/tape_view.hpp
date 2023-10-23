@@ -4,7 +4,8 @@
 #include <cstdint>
 #include <fstream>
 #include <string>
-#include <tape.hpp>
+
+#include "tape.hpp"
 
 class TapePool;
 
@@ -14,7 +15,7 @@ class TapeView {
  private:
   /**
    * @brief Constructor for calling inside TapePool.
-   * 
+   *
    * @param owner pool.
    * @param tape tape controlled.
    */
@@ -33,42 +34,42 @@ class TapeView {
 
   /**
    * @brief Read current tape and update pool statistics.
-   * 
+   *
    * @return std::int32_t value read.
    */
   std::int32_t read();
 
   /**
    * @brief Write to a current tape and update pool statistics.
-   * 
+   *
    * @param x value to write.
    */
   void write(std::int32_t x);
 
   /**
    * @brief Move head left and update pool statistics.
-   * 
+   *
    * @param i moves count.
    */
   void moveLeft(std::size_t i = 1);
 
   /**
    * @brief Move head right and update pool statistics.
-   * 
+   *
    * @param i moves count.
    */
-  void moveRight(std::size_t  = 1);
+  void moveRight(std::size_t = 1);
 
   /**
    * @brief Get size of the tape.
-   * 
+   *
    * @return tape cells count
    */
   [[nodiscard]] std::size_t getSize() const;
 
   /**
    * @brief Get head position.
-   * 
+   *
    * @return get current tape cell.
    */
   [[nodiscard]] std::int64_t getPosition() const;

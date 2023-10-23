@@ -2,7 +2,6 @@
 #define TAPE_SIMULATION_WRITE_ITERATORS_HPP
 
 #include <iterator>
-#include <tape_view.hpp>
 
 #include "impl/write_iterator_base.hpp"
 
@@ -18,8 +17,8 @@ class RightWriteIterator : public WriteIteratorBase<RightWriteIterator> {
 
  public:
   using WriteIteratorBase::WriteIteratorBase;
-  RightWriteIterator& operator=(std::int32_t x);
   RightWriteIterator& operator++();
+  using WriteIteratorBase::operator++; // Postfix iterator
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -34,8 +33,8 @@ class LeftWriteIterator : public WriteIteratorBase<LeftWriteIterator> {
 
  public:
   using WriteIteratorBase::WriteIteratorBase;
-  LeftWriteIterator& operator=(std::int32_t x);
   LeftWriteIterator& operator++();
+  using WriteIteratorBase::operator++;
 };
 
 #endif  // TAPE_SIMULATION_WRITE_ITERATORS_HPP

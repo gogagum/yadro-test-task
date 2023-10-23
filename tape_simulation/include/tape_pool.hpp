@@ -4,10 +4,10 @@
 #include <cstdint>
 #include <map>
 #include <string>
-#include <tape.hpp>
-#include <tape_view.hpp>
 
 #include "impl/tape_pool_statistics_base.hpp"
+#include "tape.hpp"
+#include "tape_view.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \brief class TapePool - tape views fabric, which counts operations.
@@ -46,7 +46,7 @@ class TapePool : public TapePoolStatisticsBase {
 
   /**
    * @brief Get or open tape.
-   * 
+   *
    * @param filename tape filename.
    * @return tape view.
    */
@@ -66,4 +66,4 @@ class TapePool : public TapePoolStatisticsBase {
   friend class TapeView;
 };
 
-#endif
+#endif  // TAPE_SIMULATION_TAPE_POOL_HPP

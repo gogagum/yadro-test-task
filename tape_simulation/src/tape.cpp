@@ -42,6 +42,12 @@ std::int32_t Tape::read() {
 
 ////////////////////////////////////////////////////////////////////////////////
 void Tape::write(std::int32_t x) {
+  if (position_ == -1 || position_ == size_) {
+    std::stringstream messageStream;
+    messageStream << "Trying writing to the edge position (" << position_
+                  << ").";
+    throw std::logic_error(messageStream.str());
+  }
   file_.seekp(static_cast<std::ptrdiff_t>(position_ * cellSize));
   file_ << x;
 }

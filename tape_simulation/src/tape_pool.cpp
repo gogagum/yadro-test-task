@@ -5,7 +5,7 @@
 #include <tape_pool.hpp>
 
 ////////////////////////////////////////////////////////////////////////////////
-TapeView TapePool::openTape(std::string_view filename) {
+TapeView TapePool::openTape(const std::string& filename) {
   increaseOpenCnt();
   if (tapes_.find(filename) != tapes_.end()) {
     std::stringstream messageStream;
@@ -17,7 +17,7 @@ TapeView TapePool::openTape(std::string_view filename) {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-TapeView TapePool::createTape(std::string_view filename, std::size_t size) {
+TapeView TapePool::createTape(const std::string& filename, std::size_t size) {
   increaseCreateCnt();
   if (tapes_.find(filename) != tapes_.end()) {
     std::stringstream messageStream;
@@ -36,7 +36,7 @@ TapeView TapePool::createTape(std::string_view filename, std::size_t size) {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-TapeView TapePool::getOpenedTape(std::string_view filename) {
+TapeView TapePool::getOpenedTape(const std::string& filename) {
   if (tapes_.find(filename) == tapes_.end()) {
     std::stringstream messageStream;
     messageStream
@@ -48,7 +48,7 @@ TapeView TapePool::getOpenedTape(std::string_view filename) {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-TapeView TapePool::getOrOpenTape(std::string_view filename) {
+TapeView TapePool::getOrOpenTape(const std::string& filename) {
   if (tapes_.find(filename) != tapes_.end()) {
     return TapeView(*this, tapes_.at(filename));
   }
@@ -56,7 +56,7 @@ TapeView TapePool::getOrOpenTape(std::string_view filename) {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void TapePool::removeTape(std::string_view filename) {
+void TapePool::removeTape(const std::string& filename) {
   increaseRemoveCnt();
   tapes_.erase(filename);
   std::filesystem::remove(filename);

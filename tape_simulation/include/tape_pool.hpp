@@ -25,7 +25,7 @@ class TapePool : public TapePoolStatisticsBase {
    * @param filename file to open.
    * @return a view to an opened tape.
    */
-  [[nodiscard]] TapeView openTape(std::string_view filename);
+  [[nodiscard]] TapeView openTape(const std::string& filename);
 
   /**
    * @brief Create a new tape and a file for it.
@@ -34,7 +34,7 @@ class TapePool : public TapePoolStatisticsBase {
    * @param size tape size (cells count).
    * @return a view to a created tape.
    */
-  TapeView createTape(std::string_view filename, std::size_t size);
+  TapeView createTape(const std::string& filename, std::size_t size);
 
   /**
    * @brief Get view of an opened tape.
@@ -42,7 +42,7 @@ class TapePool : public TapePoolStatisticsBase {
    * @param filename name of a tape.
    * @return view to an opened tape.
    */
-  TapeView getOpenedTape(std::string_view filename);
+  TapeView getOpenedTape(const std::string& filename);
 
   /**
    * @brief Get or open tape.
@@ -50,17 +50,17 @@ class TapePool : public TapePoolStatisticsBase {
    * @param filename tape filename.
    * @return tape view.
    */
-  TapeView getOrOpenTape(std::string_view filename);
+  TapeView getOrOpenTape(const std::string& filename);
 
   /**
    * @brief Remove tape.
    *
    * @param filename tape file to remove.
    */
-  void removeTape(std::string_view filename);
+  void removeTape(const std::string& filename);
 
  private:
-  std::map<std::string_view, Tape> tapes_;
+  std::map<std::string, Tape> tapes_;
 
  private:
   friend class TapeView;

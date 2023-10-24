@@ -11,47 +11,34 @@
 ////////////////////////////////////////////////////////////////////////////////
 MergeSort::MergeSort(TapePool& tapePool, std::string_view inFilename,
                      std::string_view tmpDirectory)
-    : MergeSortImpl(tapePool, inFilename, tmpDirectory) {
+    : MergeSortImpl(tapePool, inFilename, tmpDirectory, 1) {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 void MergeSort::perform(std::string_view outFilename) && {
-  auto inTape = getTapePool_().getOpenedTape(getInFilename_());
-  auto outTape = getTapePool_().createTape(outFilename, getElementsCnt_());
+  auto inTape = tapePool_->getOpenedTape(inFilename_);
+  auto outTape = tapePool_->createTape(std::string(outFilename), elementsCnt_);
 
-  if (getElementsCnt_() == 0) {
+  if (elementsCnt_ == 0) {
     return;
   }
 
-  if (getElementsCnt_() == 1) {
+  if (elementsCnt_ == 1) {
     outTape.write(inTape.read());
     return;
   }
 
-  const auto [iterationsCnt, maxBlockSize] =
-      getIterationsCntAndMaxBlockSize_(1);
+  makeInitialBlocks_(inTape, tmpTape00_, tmpTape01_);
 
-  const std::string tmpTapeName00 = getTmpDirectoryName_() + "/tmpTape00";
-  const std::string tmpTapeName01 = getTmpDirectoryName_() + "/tmpTape01";
-  const std::string tmpTapeName10 = getTmpDirectoryName_() + "/tmpTape10";
-  const std::string tmpTapeName11 = getTmpDirectoryName_() + "/tmpTape11";
-
-  auto tape00 = getTapePool_().createTape(tmpTapeName00, maxBlockSize);
-  auto tape01 = getTapePool_().createTape(tmpTapeName01, maxBlockSize);
-  auto tape10 = getTapePool_().createTape(tmpTapeName10, maxBlockSize);
-  auto tape11 = getTapePool_().createTape(tmpTapeName11, maxBlockSize);
-
-  makeInitialBlocks_(inTape, tape00, tape01);
-
-  std::size_t iterationsLeft = iterationsCnt;
+  std::size_t iterationsLeft = iterationsCnt_;
   std::size_t blockSize = 1;
 
   for (; iterationsLeft > 0; --iterationsLeft, blockSize *= 2) {
-    std::size_t iterationIdx = iterationsCnt - iterationsLeft;
-    auto& in0 = (iterationIdx % 2 == 0) ? tape00 : tape10;
-    auto& in1 = (iterationIdx % 2 == 0) ? tape01 : tape11;
-    auto& out0 = (iterationIdx % 2 == 0) ? tape10 : tape00;
-    auto& out1 = (iterationIdx % 2 == 0) ? tape11 : tape01;
+    std::size_t iterationIdx = iterationsCnt_ - iterationsLeft;
+    auto& in0 = (iterationIdx % 2 == 0) ? tmpTape00_ : tmpTape10_;
+    auto& in1 = (iterationIdx % 2 == 0) ? tmpTape01_ : tmpTape11_;
+    auto& out0 = (iterationIdx % 2 == 0) ? tmpTape10_ : tmpTape00_;
+    auto& out1 = (iterationIdx % 2 == 0) ? tmpTape11_ : tmpTape01_;
 
     if (iterationsLeft % 2 == 1) {
       mergeBlocks1_(in0, in1, out0, out1, blockSize);
@@ -60,27 +47,27 @@ void MergeSort::perform(std::string_view outFilename) && {
     }
   }
 
-  auto& inTape0 = (iterationsCnt % 2 == 0) ? tape00 : tape10;
-  auto& inTape1 = (iterationsCnt % 2 == 0) ? tape01 : tape11;
+  auto& inTape0 = (iterationsCnt_ % 2 == 0) ? tmpTape00_ : tmpTape10_;
+  auto& inTape1 = (iterationsCnt_ % 2 == 0) ? tmpTape01_ : tmpTape11_;
 
-  assert(inTape0.getPosition() + 1 == maxBlockSize &&
-         "First final tape must contain full max block.");
-  assert(inTape1.getPosition() + 1 == getElementsCnt_() - maxBlockSize &&
-         "Second final tape must contain rest elements.");
+  checkFinalPositions_(inTape0, inTape1);
 
   auto in0 = LeftReadIterator(inTape0);
   auto in1 = LeftReadIterator(inTape1);
   auto out = RightWriteIterator(outTape);
 
-  merge_increasing(in0, maxBlockSize, in1, getElementsCnt_() - maxBlockSize,
-                   out);
+  merge_increasing(in0, maxBlockSize_, in1, elementsCnt_ - maxBlockSize_, out);
 
-  getTapePool_().removeTape(tmpTapeName00);
-  getTapePool_().removeTape(tmpTapeName01);
-  getTapePool_().removeTape(tmpTapeName10);
-  getTapePool_().removeTape(tmpTapeName11);
-
-  if (needToRemoveTmpDirectory_()) {
-    std::filesystem::remove(getTmpDirectoryName_());
-  }
+  removeTmp_();
 }
+
+////////////////////////////////////////////////////////////////////////////////
+void MergeSort::makeInitialBlocks_(TapeView& in, TapeView& out0,
+                                   TapeView& out1) const {
+  const auto [to0Cnt, to1Cnt] = getBlocksCnts_(1);
+  auto read = RightReadIterator(in);
+  copy_n(read, to0Cnt, RightWriteIterator(out0));
+  ++read;
+  copy_n(read, to1Cnt, RightWriteIterator(out1));
+}
+

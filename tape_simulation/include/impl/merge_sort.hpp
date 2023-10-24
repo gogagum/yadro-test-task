@@ -7,13 +7,14 @@
 #include "../tape_pool.hpp"
 #include "../tape_view_read_iterators.hpp"
 #include "../tape_view_write_iterators.hpp"
+#include "tape_view.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \brief class MergeSortImpl
 class MergeSortImpl {
  protected:
   MergeSortImpl(TapePool& tapePool, std::string_view inFilename,
-                std::string_view tmpDirectory);
+                std::string_view tmpDirectory, std::size_t initialBlockSize);
 
  protected:
   struct OperationBlocksCnts_ {
@@ -81,16 +82,6 @@ class MergeSortImpl {
   void mergeBlocks1_(TapeView& in0, TapeView& in1, TapeView& out0,
                      TapeView& out1, std::size_t blockSize) const;
 
-  [[nodiscard]] TapePool& getTapePool_() const;
-
-  [[nodiscard]] std::size_t getElementsCnt_() const;
-
-  [[nodiscard]] const std::string& getInFilename_() const;
-
-  [[nodiscard]] const std::string& getTmpDirectoryName_() const;
-
-  [[nodiscard]] bool needToRemoveTmpDirectory_() const;
-
   [[nodiscard]] Counts_ getBlocksCnts_(std::size_t blockSize) const;
 
   [[nodiscard]] Counts_ calcCounts_(std::size_t blocksCnt0,
@@ -102,21 +93,13 @@ class MergeSortImpl {
                                          std::size_t blocksCnt1,
                                          std::size_t blockSize) const;
 
-  [[nodiscard]] std::size_t getBlocksCnt_(std::size_t blockSize) const;
-
-  [[nodiscard]] std::size_t getBlocksCnt0_(std::size_t blockSize) const;
-
-  [[nodiscard]] std::size_t getBlocksCnt1_(std::size_t blockSize) const;
-
   void checkStartPositions_(TapeView& in0, TapeView& in1, TapeView& out0,
                             TapeView& out1, std::size_t inCnt0Expected,
                             std::size_t inCnt1Expected) const;
 
-  void checkFinishPositions_(TapeView& in0, TapeView& in1, TapeView& out0,
-                             TapeView& out1, std::size_t outCnt0Expected,
-                             std::size_t outCnt1Expected) const;
-
-  [[nodiscard]] OperationBlocksCnts_ calcOperationBlocksCnts_(
+  void checkFinishPositions_(
+      TapeView& in0, TapeView& in1, TapeView& out0, TapeView& out1,
+      const MergeSortImpl::OperationBlocksCnts_& opBlocksCnt,
       std::size_t blockSize) const;
 
   void processPartialBlocks_(LeftReadIterator& in0, std::size_t cnt0,
@@ -129,52 +112,34 @@ class MergeSortImpl {
                            RightWriteIterator& out1, std::size_t blocksOUt1,
                            std::size_t blockSize, bool increasing) const;
 
-  static std::size_t getBlockSize_(std::size_t iteration);
+  void checkFinalPositions_(const TapeView& in0, const TapeView& in1) const;
 
-  [[nodiscard]] std::pair<std::size_t, std::size_t>
-  getIterationsCntAndMaxBlockSize_(std::size_t startBlockSize) const;
-
-  void makeInitialBlocks_(TapeView& in, TapeView& out0, TapeView& out1) const;
+  void removeTmp_();
 
  private:
+  [[nodiscard]] OperationBlocksCnts_ calcOperationBlocksCnts_(
+      std::size_t blockSize) const;
+
+  [[nodiscard]] std::size_t calcIterationsCnt_() const;
+
+  static bool openOrCreateTmpPath_(std::string_view tmpDirectory);
+
+  TapeView createTmpTape_(std::string_view name) const;
+
+ protected:
   TapePool* tapePool_;
-  std::size_t elementsCnt_;
-  std::string inFilename_;
-  std::string tmpDirectoryName_;
-  std::size_t firstHalfSize_;
-  std::size_t secondHalfSize_;
-  bool needToRemoveTmpDirectoryFlag_{false};
+  const std::size_t elementsCnt_;
+  const std::size_t initialBlockSize_;
+  const std::size_t iterationsCnt_;
+  const std::size_t maxBlockSize_;
+  const std::string inFilename_;
+  const std::string tmpDirectoryName_;
+  const bool needToRemoveTmpDirectory_;
+  TapeView tmpTape00_;
+  TapeView tmpTape01_;
+  TapeView tmpTape10_;
+  TapeView tmpTape11_;
 };
-
-////////////////////////////////////////////////////////////////////////////////
-inline TapePool& MergeSortImpl::getTapePool_() const {
-  return *tapePool_;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-inline std::size_t MergeSortImpl::getElementsCnt_() const {
-  return elementsCnt_;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-inline const std::string& MergeSortImpl::getInFilename_() const {
-  return inFilename_;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-inline const std::string& MergeSortImpl::getTmpDirectoryName_() const {
-  return tmpDirectoryName_;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-inline bool MergeSortImpl::needToRemoveTmpDirectory_() const {
-  return needToRemoveTmpDirectoryFlag_;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-inline std::size_t MergeSortImpl::getBlocksCnt_(std::size_t blockSize) const {
-  return elementsCnt_ / blockSize;
-}
 
 ////////////////////////////////////////////////////////////////////////////////
 inline auto MergeSortImpl::calcTailsCounts_(std::size_t elementsCnt0,
@@ -187,20 +152,10 @@ inline auto MergeSortImpl::calcTailsCounts_(std::size_t elementsCnt0,
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-inline std::size_t MergeSortImpl::getBlocksCnt0_(std::size_t blockSize) const {
-  return (getBlocksCnt_(blockSize) - 1) / 2 + 1;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-inline std::size_t MergeSortImpl::getBlocksCnt1_(std::size_t blockSize) const {
-  return getBlocksCnt_(blockSize) / 2;
-}
-
-////////////////////////////////////////////////////////////////////////////////
 inline auto MergeSortImpl::getBlocksCnts_(std::size_t blockSize) const
     -> Counts_ {
-  const auto blocksCnt = getBlocksCnt_(blockSize);
-  return {(blocksCnt - 1) / 2 + 1, blocksCnt / 2};
+  return {(elementsCnt_ / blockSize - 1) / 2 + 1,
+          (elementsCnt_ / blockSize) / 2};
 }
 
 #endif

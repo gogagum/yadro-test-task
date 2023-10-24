@@ -37,12 +37,7 @@ void MergeSort::perform(std::string_view outFilename) && {
   for (; iterationsLeft > 0; --iterationsLeft, blockSize *= 2) {
     const std::size_t iterationIdx =
         mergeSortCounter_.getIterationsCnt() - iterationsLeft;
-    auto& out0 = tapesManager_.getOutTape0(iterationIdx);
-    auto& out1 = tapesManager_.getOutTape1(iterationIdx);
-
-    mergeBlocks_(tapesManager_.getInTape0(iterationIdx),
-                 tapesManager_.getInTape1(iterationIdx), out0, out1, blockSize,
-                 iterationIdx, iterationsLeft);
+    mergeBlocks_(blockSize, iterationIdx, iterationsLeft);
   }
 
   mergeIntoOutputTape_(

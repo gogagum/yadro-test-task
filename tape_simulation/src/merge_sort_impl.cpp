@@ -75,10 +75,14 @@ void MergeSortImpl::processBlocksPairs_(
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void MergeSortImpl::mergeBlocks_(TapeView& in0, TapeView& in1, TapeView& out0,
-                                 TapeView& out1, std::size_t blockSize,
-                                 std::size_t iterationIndex, std::size_t iterationsLeft) const {
-  bool increasing = (iterationsLeft % 2 == 1) ? !increasing_ : increasing_;
+void MergeSortImpl::mergeBlocks_(std::size_t blockSize,
+                                 std::size_t iterationIndex,
+                                 std::size_t iterationsLeft) {
+  const bool increasing = (iterationsLeft % 2 == 1) ? !increasing_ : increasing_;
+  auto& in0 = tapesManager_.getInTape0(iterationIndex);
+  auto& in1 = tapesManager_.getInTape1(iterationIndex);
+  auto& out0 = tapesManager_.getOutTape0(iterationIndex);
+  auto& out1 = tapesManager_.getOutTape1(iterationIndex);
   if (iterationIndex % 2 == 1) {
     mergeBlocks1_(in0, in1, out0, out1, blockSize, increasing);
   } else {
@@ -110,7 +114,7 @@ void MergeSortImpl::mergeBlocks0_(TapeView& in0, TapeView& in1, TapeView& out0,
 
   if (inTailSize0 + inTailSize1 != 0) {
     processPartialBlocks_(read0, inTailSize0, read1, inTailSize1, tailWrite,
-                          increasing, true);                          
+                          increasing, true);
     if (opBlocksCnt.blocksOut % 2 == 0 && opBlocksCnt.blocksOut0 != 0) {
       ++write0;
     }

@@ -34,9 +34,8 @@ class MergeSortImpl {
    * @param blockSize block size.
    * @param iterationLeft iteration index from the end.
    */
-  void mergeBlocks_(TapeView& in0, TapeView& in1, TapeView& out0,
-                    TapeView& out1, std::size_t blockSize,
-                    std::size_t iterationIndex, std::size_t iterationsLeft) const;
+  void mergeBlocks_(std::size_t blockSize,
+                    std::size_t iterationIndex, std::size_t iterationsLeft);
 
   /**
    * @brief mergeBlocks0_

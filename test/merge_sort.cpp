@@ -2,6 +2,7 @@
 
 #include <filesystem>
 #include <merge_sort.hpp>
+#include <copy_n.hpp>
 #include <vector>
 
 #include "sort_test_utils.hpp"

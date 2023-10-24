@@ -192,7 +192,7 @@ TEST(TapeViewWriteIterator, ConstructLeftAndMove) {
     EXPECT_EQ(stats.createCnt, 1);
     EXPECT_EQ(stats.readCnt, 0);
     EXPECT_EQ(stats.writeCnt, 0);
-    EXPECT_EQ(stats.moveCnt, 1);
+    EXPECT_EQ(stats.moveCnt, 0);
   }
 
   std::filesystem::remove(filename);

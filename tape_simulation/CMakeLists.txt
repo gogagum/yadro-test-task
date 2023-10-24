@@ -16,6 +16,7 @@ target_sources(tape_simulation
         src/merge_sort.cpp
         src/copy_n.cpp
         src/merge.cpp
+        src/merge_sort_impl.cpp
 )
 
 target_include_directories(tape_simulation

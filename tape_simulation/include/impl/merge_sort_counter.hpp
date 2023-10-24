@@ -33,8 +33,7 @@ class MergeSortCounter {
                                    std::size_t blocksCnt1,
                                    std::size_t blockSize) const;
 
-  [[nodiscard]] Counts_ calcTailsCounts(std::size_t elementsCnt0,
-                                        std::size_t elementsCnt1,
+  [[nodiscard]] Counts_ calcTailsCounts(const OperationBlocksCnts_& opBlocksCnt,
                                         std::size_t blocksCnt1,
                                         std::size_t blockSize) const;
 
@@ -50,11 +49,11 @@ class MergeSortCounter {
 };
 
 ////////////////////////////////////////////////////////////////////////////////
-inline auto MergeSortCounter::calcTailsCounts(std::size_t elementsCnt0,
-                                              std::size_t elementsCnt1,
-                                              std::size_t blocksCnt1,
-                                              std::size_t blockSize) const
-    -> Counts_ {
+inline auto MergeSortCounter::calcTailsCounts(
+    const OperationBlocksCnts_& opBlocksCnt, std::size_t blocksCnt1,
+    std::size_t blockSize) const -> Counts_ {
+  const auto [elementsCnt0, elementsCnt1] =
+      calcCounts(opBlocksCnt.blocksIn0, opBlocksCnt.blocksIn1, blockSize);
   return {elementsCnt0 - blocksCnt1 * blockSize,
           elementsCnt1 - blocksCnt1 * blockSize};
 }

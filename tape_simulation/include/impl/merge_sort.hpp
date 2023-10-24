@@ -34,8 +34,8 @@ class MergeSortImpl {
    * @param blockSize block size.
    * @param iterationLeft iteration index from the end.
    */
-  void mergeBlocks_(std::size_t blockSize,
-                    std::size_t iterationIndex, std::size_t iterationsLeft);
+  void mergeBlocks_(std::size_t blockSize, std::size_t iterationIndex,
+                    std::size_t iterationsLeft);
 
   /**
    * @brief mergeBlocks0_
@@ -60,9 +60,13 @@ class MergeSortImpl {
    * tape.
    * @param blockSize block size.
    */
-  void mergeBlocks0_(TapeView& in0, TapeView& in1, TapeView& out0,
+  void mergeBlocks0AndCheck_(TapeView& in0, TapeView& in1, TapeView& out0,
                      TapeView& out1, std::size_t blockSize,
                      bool increasing) const;
+
+  void mergeBlocks0_(LeftReadIterator read0, LeftReadIterator read1,
+                     RightWriteIterator write0, RightWriteIterator write1,
+                     std::size_t blockSize, bool increasing) const;
 
   /**
    * @brief mergeBlocks1_
@@ -85,9 +89,13 @@ class MergeSortImpl {
    * tape.
    * @param blockSize block size.
    */
-  void mergeBlocks1_(TapeView& in0, TapeView& in1, TapeView& out0,
+  void mergeBlocks1AndCheck_(TapeView& in0, TapeView& in1, TapeView& out0,
                      TapeView& out1, std::size_t blockSize,
                      bool increasing) const;
+
+  void mergeBlocks1_(LeftReadIterator read0, LeftReadIterator read1,
+                     RightWriteIterator write0, RightWriteIterator write1,
+                     std::size_t blockSize, bool increasing) const;
 
   void processPartialBlocks_(LeftReadIterator& in0, std::size_t cnt0,
                              LeftReadIterator& in1, std::size_t cnt1,
@@ -105,13 +113,12 @@ class MergeSortImpl {
  private:
   //////////////////////////////////////////////////////////////////////////////
   // Checks                                                                   //
-  void checkStartPositions_(TapeView& in0, TapeView& in1, TapeView& out0,
-                            TapeView& out1, std::size_t inCnt0Expected,
-                            std::size_t inCnt1Expected) const;
+  void checkStartPositions_(
+      TapeView& in0, TapeView& in1, TapeView& out0, TapeView& out1,
+      std::size_t blockSize) const;
 
   void checkFinishPositions_(
       TapeView& in0, TapeView& in1, TapeView& out0, TapeView& out1,
-      const MergeSortCounter::OperationBlocksCnts_& opBlocksCnt,
       std::size_t blockSize) const;
 
   void checkFinalPositions_(const TapeView& in0, const TapeView& in1) const;

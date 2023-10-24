@@ -14,7 +14,8 @@
 class MergeSortImpl {
  protected:
   MergeSortImpl(TapePool& tapePool, std::string_view inFilename,
-                std::string_view tmpDirectory, std::size_t initialBlockSize);
+                std::string_view tmpDirectory, std::size_t initialBlockSize,
+                bool increasing);
 
  protected:
   struct OperationBlocksCnts_ {
@@ -33,7 +34,25 @@ class MergeSortImpl {
 
  protected:
   /**
-   * @brief mergeBlocksForward_
+   * @brief mergeBlocks_ performs one of merge blocks depending on iteration
+   * index.
+   *
+   * @param in0 first source tape. The head must be at the end of last block or
+   * at the and of a part of last block.
+   * @param in1 second source tape. The head must be at the end of last block or
+   * at the and of a part of last block.
+   * @param out0 first output tape. The head must be in the beginning of a tape.
+   * @param out1 second output tape. The head must be in the beginning of a
+   * tape.
+   * @param blockSize block size.
+   * @param iterationLeft iteration index from the end.
+   */
+  void mergeBlocks_(TapeView& in0, TapeView& in1, TapeView& out0,
+                    TapeView& out1, std::size_t blockSize,
+                    std::size_t iterationsLeft) const;
+
+  /**
+   * @brief mergeBlocks0_
    * in:
    * Partial couple is at the end of in0 and in1 and is read first.
    * Blocks are sorted decreasing and are read increasing.
@@ -59,7 +78,7 @@ class MergeSortImpl {
                      TapeView& out1, std::size_t blockSize) const;
 
   /**
-   * @brief mergeBlocksBackward_
+   * @brief mergeBlocks1_
    *
    * in:
    * Partial couple is in the beginnings of in1 and in2 and is read last.
@@ -116,6 +135,13 @@ class MergeSortImpl {
 
   void removeTmp_();
 
+  void mergeIntoOutputTape_(TapeView& inTape0, TapeView& inTape1,
+                            TapeView& outTape) const;
+
+  TapeView& getInTape0_(std::size_t iterationIdx);
+
+  TapeView& getInTape1_(std::size_t iterationIdx);
+
  private:
   [[nodiscard]] OperationBlocksCnts_ calcOperationBlocksCnts_(
       std::size_t blockSize) const;
@@ -135,6 +161,7 @@ class MergeSortImpl {
   const std::string inFilename_;
   const std::string tmpDirectoryName_;
   const bool needToRemoveTmpDirectory_;
+  const bool increasing_;
   TapeView tmpTape00_;
   TapeView tmpTape01_;
   TapeView tmpTape10_;
@@ -156,6 +183,16 @@ inline auto MergeSortImpl::getBlocksCnts_(std::size_t blockSize) const
     -> Counts_ {
   return {(elementsCnt_ / blockSize - 1) / 2 + 1,
           (elementsCnt_ / blockSize) / 2};
+}
+
+////////////////////////////////////////////////////////////////////////////////
+inline TapeView& MergeSortImpl::getInTape0_(std::size_t iterationIdx) {
+  return (iterationIdx % 2 == 0) ? tmpTape00_ : tmpTape10_;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+inline TapeView& MergeSortImpl::getInTape1_(std::size_t iterationIdx) {
+  return (iterationIdx % 2 == 0) ? tmpTape01_ : tmpTape11_;
 }
 
 #endif

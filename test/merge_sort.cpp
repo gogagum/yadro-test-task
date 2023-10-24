@@ -35,7 +35,7 @@ TEST_P(MergeSortTest, MergeSortCompareWithStdSort) {
     
     inTape.moveLeftRepeated(inTape.getPosition());
 
-    MergeSort(tapePool, inFilename, "tmp").perform(outFilename);
+    MergeSort(tapePool, inFilename, "tmp",  true).perform(outFilename);
 
     auto outTape = tapePool.getOpenedTape(outFilename);
     outTape.moveLeftRepeated(outTape.getPosition());

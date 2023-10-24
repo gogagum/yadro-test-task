@@ -13,7 +13,7 @@
 class MergeSort : private MergeSortImpl {
  public:
   MergeSort(TapePool& tapePool, std::string_view inFilename,
-            std::string_view tmpDirectory);
+            std::string_view tmpDirectory, bool increasing);
 
   void perform(std::string_view outFilename) &&;
 

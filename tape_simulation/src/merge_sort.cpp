@@ -4,14 +4,14 @@
 #include <merge_sort.hpp>
 #include <tape_pool.hpp>
 
-#include "merge.hpp"
+#include "copy_n.hpp"
 #include "tape_view_read_iterators.hpp"
 #include "tape_view_write_iterators.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 MergeSort::MergeSort(TapePool& tapePool, std::string_view inFilename,
-                     std::string_view tmpDirectory)
-    : MergeSortImpl(tapePool, inFilename, tmpDirectory, 1) {
+                     std::string_view tmpDirectory, bool increasing)
+    : MergeSortImpl(tapePool, inFilename, tmpDirectory, 1, increasing) {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -34,30 +34,16 @@ void MergeSort::perform(std::string_view outFilename) && {
   std::size_t blockSize = 1;
 
   for (; iterationsLeft > 0; --iterationsLeft, blockSize *= 2) {
-    std::size_t iterationIdx = iterationsCnt_ - iterationsLeft;
-    auto& in0 = (iterationIdx % 2 == 0) ? tmpTape00_ : tmpTape10_;
-    auto& in1 = (iterationIdx % 2 == 0) ? tmpTape01_ : tmpTape11_;
+    const std::size_t iterationIdx = iterationsCnt_ - iterationsLeft;
     auto& out0 = (iterationIdx % 2 == 0) ? tmpTape10_ : tmpTape00_;
     auto& out1 = (iterationIdx % 2 == 0) ? tmpTape11_ : tmpTape01_;
 
-    if (iterationsLeft % 2 == 1) {
-      mergeBlocks1_(in0, in1, out0, out1, blockSize);
-    } else {
-      mergeBlocks0_(in0, in1, out0, out1, blockSize);
-    }
+    mergeBlocks_(getInTape0_(iterationIdx), getInTape1_(iterationIdx), out0,
+                 out1, blockSize, iterationsLeft);
   }
 
-  auto& inTape0 = (iterationsCnt_ % 2 == 0) ? tmpTape00_ : tmpTape10_;
-  auto& inTape1 = (iterationsCnt_ % 2 == 0) ? tmpTape01_ : tmpTape11_;
-
-  checkFinalPositions_(inTape0, inTape1);
-
-  auto in0 = LeftReadIterator(inTape0);
-  auto in1 = LeftReadIterator(inTape1);
-  auto out = RightWriteIterator(outTape);
-
-  merge_increasing(in0, maxBlockSize_, in1, elementsCnt_ - maxBlockSize_, out);
-
+  mergeIntoOutputTape_(getInTape0_(iterationsCnt_), getInTape1_(iterationsCnt_),
+                       outTape);
   removeTmp_();
 }
 
@@ -70,4 +56,3 @@ void MergeSort::makeInitialBlocks_(TapeView& in, TapeView& out0,
   ++read;
   copy_n(read, to1Cnt, RightWriteIterator(out1));
 }
-

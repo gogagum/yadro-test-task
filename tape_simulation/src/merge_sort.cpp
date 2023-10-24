@@ -42,7 +42,7 @@ void MergeSort::perform(std::string_view outFilename) && {
 
     mergeBlocks_(tapesManager_.getInTape0(iterationIdx),
                  tapesManager_.getInTape1(iterationIdx), out0, out1, blockSize,
-                 iterationsLeft);
+                 iterationIdx, iterationsLeft);
   }
 
   mergeIntoOutputTape_(

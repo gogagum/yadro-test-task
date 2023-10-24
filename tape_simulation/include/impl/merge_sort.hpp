@@ -36,7 +36,7 @@ class MergeSortImpl {
    */
   void mergeBlocks_(TapeView& in0, TapeView& in1, TapeView& out0,
                     TapeView& out1, std::size_t blockSize,
-                    std::size_t iterationsLeft) const;
+                    std::size_t iterationIndex, std::size_t iterationsLeft) const;
 
   /**
    * @brief mergeBlocks0_
@@ -62,7 +62,8 @@ class MergeSortImpl {
    * @param blockSize block size.
    */
   void mergeBlocks0_(TapeView& in0, TapeView& in1, TapeView& out0,
-                     TapeView& out1, std::size_t blockSize) const;
+                     TapeView& out1, std::size_t blockSize,
+                     bool increasing) const;
 
   /**
    * @brief mergeBlocks1_
@@ -86,7 +87,8 @@ class MergeSortImpl {
    * @param blockSize block size.
    */
   void mergeBlocks1_(TapeView& in0, TapeView& in1, TapeView& out0,
-                     TapeView& out1, std::size_t blockSize) const;
+                     TapeView& out1, std::size_t blockSize,
+                     bool increasing) const;
 
   void processPartialBlocks_(LeftReadIterator& in0, std::size_t cnt0,
                              LeftReadIterator& in1, std::size_t cnt1,
@@ -102,7 +104,6 @@ class MergeSortImpl {
                             TapeView& outTape) const;
 
  private:
-
   //////////////////////////////////////////////////////////////////////////////
   // Checks                                                                   //
   void checkStartPositions_(TapeView& in0, TapeView& in1, TapeView& out0,

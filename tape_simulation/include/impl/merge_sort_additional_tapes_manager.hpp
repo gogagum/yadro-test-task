@@ -7,10 +7,15 @@
 
 class MergeSortAdditionalTapesManager {
  public:
-  MergeSortAdditionalTapesManager(TapePool& tapePool, std::string_view path,
-                                  std::size_t tapeSize);
+  MergeSortAdditionalTapesManager(std::string_view path, std::size_t tapeSize);
+  MergeSortAdditionalTapesManager(const MergeSortAdditionalTapesManager&) =
+      delete;
+  MergeSortAdditionalTapesManager(MergeSortAdditionalTapesManager&&) noexcept =
+      delete;
+  auto operator=(const MergeSortAdditionalTapesManager&) = delete;
+  auto operator=(MergeSortAdditionalTapesManager&&) noexcept = delete;
 
-  TapeView createTmpTape_(std::string_view name, std::size_t size) const;
+  TapeView createTmpTape_(std::string_view name, std::size_t size);
 
   TapeView& getInTape0(std::size_t iterationIdx);
 
@@ -24,12 +29,12 @@ class MergeSortAdditionalTapesManager {
 
   TapeView& getInitialOutTape1();
 
-  void removeTmp();
-
   static bool openOrCreateTmpPath_(std::string_view tmpDirectory);
 
+  ~MergeSortAdditionalTapesManager();
+
  private:
-  TapePool* tapePool_;
+  TapePool tapePool_{};
   const std::string path_;
   const bool needToRemove_;
   TapeView tmpTape00_;
@@ -49,7 +54,6 @@ inline TapeView& MergeSortAdditionalTapesManager::getInTape1(
     std::size_t iterationIdx) {
   return (iterationIdx % 2 == 0) ? tmpTape01_ : tmpTape11_;
 }
-
 
 ////////////////////////////////////////////////////////////////////////////////
 inline TapeView& MergeSortAdditionalTapesManager::getOutTape0(

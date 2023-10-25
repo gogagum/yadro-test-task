@@ -12,7 +12,7 @@ MergeSortImpl::MergeSortImpl(TapePool& tapePool, std::string_view inFilename,
       tapePool_{&tapePool},
       inFilename_{inFilename},
       increasing_{increasing},
-      tapesManager_(tapePool, tmpDirectory, maxBlockSize_) {
+      tapesManager_(tmpDirectory, maxBlockSize_) {
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -9,12 +9,20 @@
 #include "tape_view_write_iterators.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
+MergeSortImproved::ZeroHeapSizeLimit::ZeroHeapSizeLimit()
+    : std::logic_error("heapSizeLimit can not be zero.") {
+}
+
+////////////////////////////////////////////////////////////////////////////////
 MergeSortImproved::MergeSortImproved(TapePool& tapePool,
                                      std::string_view inFilename,
                                      std::string_view tmpDirectory,
                                      bool increasing, std::size_t heapSizeLimit)
     : MergeSortImpl(tapePool, inFilename, tmpDirectory, heapSizeLimit,
                     increasing) {
+  if (heapSizeLimit == 0) {
+    throw ZeroHeapSizeLimit();
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////////////

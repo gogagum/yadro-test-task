@@ -1,4 +1,12 @@
 #include <impl/merge_sort_arithmetics_base.hpp>
+#include <stdexcept>
+
+////////////////////////////////////////////////////////////////////////////////
+MergeSortArithmeticsBase::ZeroInitialBlockSize_::ZeroInitialBlockSize_()
+    : std::invalid_argument(
+          "Trying creating MergeSortArithmeticBase with zero initial block "
+          "size.") {
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 MergeSortArithmeticsBase::MergeSortArithmeticsBase(std::size_t elementsCnt,
@@ -11,6 +19,10 @@ MergeSortArithmeticsBase::MergeSortArithmeticsBase(std::size_t elementsCnt,
 
 ////////////////////////////////////////////////////////////////////////////////
 std::size_t MergeSortArithmeticsBase::calcIterationsCnt_() const {
+  if (initialBlockSize_ == 0) {
+    throw ZeroInitialBlockSize_();
+  }
+  
   std::size_t iterationsCnt = 0;
 
   for (std::size_t blockSize = initialBlockSize_; blockSize * 2 < elementsCnt_;
@@ -22,7 +34,8 @@ std::size_t MergeSortArithmeticsBase::calcIterationsCnt_() const {
 
 ////////////////////////////////////////////////////////////////////////////////
 auto MergeSortArithmeticsBase::calcTailsCounts_(std::size_t blocksCnt1,
-    std::size_t blockSize) const -> Counts_ {
+                                                std::size_t blockSize) const
+    -> Counts_ {
   const auto opBlocksCnt = calcOperationBlocksCnts_(blockSize);
   const auto [elementsCnt0, elementsCnt1] =
       calcCounts_(opBlocksCnt.in0, opBlocksCnt.in1, blockSize);

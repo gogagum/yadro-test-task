@@ -1,19 +1,25 @@
-#ifndef TAPE_SIMULATION_IMPL_MERGE_SORT_HPP
-#define TAPE_SIMULATION_IMPL_MERGE_SORT_HPP
+#ifndef TAPE_SIMULATION_IMPL_MERGE_SORT_IMPL_HPP
+#define TAPE_SIMULATION_IMPL_MERGE_SORT_IMPL_HPP
 
 #include <cstdint>
 #include <string>
 
 #include "../tape_pool.hpp"
+#include "../tape_view.hpp"
 #include "../tape_view_read_iterators.hpp"
 #include "../tape_view_write_iterators.hpp"
 #include "merge_sort_additional_tapes_manager.hpp"
 #include "merge_sort_arithmetics_base.hpp"
-#include "tape_view.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \brief class MergeSortImpl
 class MergeSortImpl : protected MergeSortArithmeticsBase {
+ protected:
+  class ZeroInitialBlockSize_ : std::invalid_argument {
+    public:
+     ZeroInitialBlockSize_();
+  };
+
  protected:
   MergeSortImpl(TapePool& tapePool, std::string_view inFilename,
                 std::string_view tmpDirectory, std::size_t initialBlockSize,
@@ -61,8 +67,8 @@ class MergeSortImpl : protected MergeSortArithmeticsBase {
    * @param blockSize block size.
    */
   void mergeBlocks0AndCheck_(TapeView& in0, TapeView& in1, TapeView& out0,
-                     TapeView& out1, std::size_t blockSize,
-                     bool increasing) const;
+                             TapeView& out1, std::size_t blockSize,
+                             bool increasing) const;
 
   void mergeBlocks0_(LeftReadIterator read0, LeftReadIterator read1,
                      RightWriteIterator write0, RightWriteIterator write1,
@@ -90,8 +96,8 @@ class MergeSortImpl : protected MergeSortArithmeticsBase {
    * @param blockSize block size.
    */
   void mergeBlocks1AndCheck_(TapeView& in0, TapeView& in1, TapeView& out0,
-                     TapeView& out1, std::size_t blockSize,
-                     bool increasing) const;
+                             TapeView& out1, std::size_t blockSize,
+                             bool increasing) const;
 
   void mergeBlocks1_(LeftReadIterator read0, LeftReadIterator read1,
                      RightWriteIterator write0, RightWriteIterator write1,
@@ -115,13 +121,11 @@ class MergeSortImpl : protected MergeSortArithmeticsBase {
  private:
   //////////////////////////////////////////////////////////////////////////////
   // Checks                                                                   //
-  void checkStartPositions_(
-      TapeView& in0, TapeView& in1, TapeView& out0, TapeView& out1,
-      std::size_t blockSize) const;
+  void checkStartPositions_(TapeView& in0, TapeView& in1, TapeView& out0,
+                            TapeView& out1, std::size_t blockSize) const;
 
-  void checkFinishPositions_(
-      TapeView& in0, TapeView& in1, TapeView& out0, TapeView& out1,
-      std::size_t blockSize) const;
+  void checkFinishPositions_(TapeView& in0, TapeView& in1, TapeView& out0,
+                             TapeView& out1, std::size_t blockSize) const;
 
   void checkFinalPositions_(const TapeView& in0, const TapeView& in1) const;
   //                                                                          //
@@ -134,4 +138,4 @@ class MergeSortImpl : protected MergeSortArithmeticsBase {
   MergeSortAdditionalTapesManager tapesManager_;
 };
 
-#endif
+#endif  // TAPE_SIMULATION_IMPL_MERGE_SORT_IMPL_HPP

@@ -5,7 +5,7 @@
 #include <string>
 #include <string_view>
 
-#include "impl/merge_sort.hpp"
+#include "impl/merge_sort_impl.hpp"
 #include "tape_pool.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////

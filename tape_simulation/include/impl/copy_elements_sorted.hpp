@@ -3,19 +3,25 @@
 
 #include <cstdint>
 #include <queue>
+#include <stdexcept>
 #include <vector>
 
 template <class InputIterator, class OutputIterator, class Compare>
 void copy_elements_sorted(InputIterator source, OutputIterator target,
                           std::size_t elementsCnt,
                           std::size_t additionalScan = 0) {
+  if (elementsCnt == 0) {
+    throw std::logic_error("Trying copying zero elements.");
+  }
   auto q =
       std::priority_queue<std::int32_t, std::vector<std::int32_t>, Compare>();
   if (elementsCnt + additionalScan == 0) {
     return;
   }
   q.push(*source);
-  ++source;
+  if (elementsCnt + additionalScan > 1) {
+    ++source;
+  }
   for (std::size_t i = 1; i < elementsCnt + additionalScan; ++i) {
     if (q.size() == elementsCnt) {
       const auto val = *source;

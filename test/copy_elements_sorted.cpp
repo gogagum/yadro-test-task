@@ -11,19 +11,21 @@
 // cppcoreguidelines-avoid-non-const-global-variables)
 
 ////////////////////////////////////////////////////////////////////////////////
-TEST(CopyElementsSorted, DoNothingTop) {
+TEST(CopyElementsSorted, CopyZero) {
   auto src = std::array{1, 2, 3};
   auto target = std::vector<int>{};
 
-  copy_top_elements_sorted(src.begin(), std::back_inserter(target), 0);
-}
+  const auto perform0 = [&]() {
+    copy_top_elements_sorted(src.begin(), std::back_inserter(target), 0);
+  };
 
-////////////////////////////////////////////////////////////////////////////////
-TEST(CopyElementsSorted, DoNothingBottom) {
-  auto src = std::array{1, 2, 3};
-  auto target = std::vector<int>{};
+  EXPECT_THROW(perform0(), std::logic_error);
 
-  copy_bottom_elements_sorted(src.begin(), std::back_inserter(target), 0);
+  const auto perform1 = [&]() {
+    copy_bottom_elements_sorted(src.begin(), std::back_inserter(target), 0);
+  };
+
+  EXPECT_THROW(perform1(), std::logic_error);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -18,7 +18,8 @@ add_executable(tapes_tests
     copy_elements_sorted.cpp
     merge_sort.cpp
     merge_sort_improved.cpp
-    sort_test_utils.cpp
+    merge_sort_tests_utils.cpp
+    improved_merge_sort_tests_utils.cpp
     merge_test_utils.cpp
 )
 

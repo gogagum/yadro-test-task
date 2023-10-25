@@ -5,6 +5,7 @@
 #include <merge.hpp>
 #include <random>
 
+#include "common_utils.hpp"
 #include "merge_test_utils.hpp"
 
 // NOLINTBEGIN(cppcoreguidelines-avoid-non-const-global-variables,
@@ -37,8 +38,7 @@ TEST_P(MergeTest, MergeSimple) {
                params.input1.rbegin(), params.input1.rend(), expected.rbegin());
   }
 
-  EXPECT_EQ(result.size(), expected.size());
-  EXPECT_TRUE(std::equal(result.begin(), result.end(), expected.begin()));
+  EXPECT_TRUE(eq(result, expected));
 }
 
 static auto simpleMergesInputs = std::vector<MergeTestParam>{
@@ -51,8 +51,7 @@ static auto simpleMergesInputs = std::vector<MergeTestParam>{
     {"merge_non_intersecting_increasing", {1, 2, 3}, {4, 5, 6}, true},
     {"merge_non_intersecting_decreasing", {3, 2, 1}, {6, 5, 4}, false},
     {"merge_non_intersecting_increasing_swapped", {4, 5, 6}, {1, 2, 3}, true},
-    {"merge_non_intersecting_decreasing_swapped", {6, 5, 4}, {3, 2, 1}, false}
-};
+    {"merge_non_intersecting_decreasing_swapped", {6, 5, 4}, {3, 2, 1}, false}};
 
 INSTANTIATE_TEST_SUITE_P(SimpleTapesMerges, MergeTest,
                          testing::ValuesIn(simpleMergesInputs),
@@ -243,8 +242,7 @@ TEST(Merge, FuzzIncreasing) {
       merge_increasing(seq1.begin(), seq1.size(), seq2.begin(), seq2.size(),
                        std::back_inserter(result));
 
-      EXPECT_EQ(expected.size(), result.size());
-      EXPECT_TRUE(std::equal(expected.begin(), expected.end(), result.begin()));
+      EXPECT_TRUE(eq(expected, result));
     }
   }
 }
@@ -254,8 +252,8 @@ TEST(Merge, FuzzDecreasing) {
   auto gen = std::mt19937(42);
 
   for (std::size_t i = 0; i < 100; ++i) {
-    auto cnt1 = std::size_t{gen() % 100};
-    auto cnt2 = std::size_t{gen() % 100};
+    auto cnt1 = std::size_t{gen() % 100 + 1};
+    auto cnt2 = std::size_t{gen() % 100 + 1};
 
     auto seq1 = std::vector<std::int32_t>{};
     seq1.reserve(cnt1);
@@ -277,23 +275,16 @@ TEST(Merge, FuzzDecreasing) {
       }
     }
 
-    auto expected = std::vector<std::int32_t>{};
-    expected.reserve(cnt1 + cnt2);
+    auto expected = std::vector<std::int32_t>(cnt1 + cnt2);
 
     std::merge(seq1.rbegin(), seq1.rend(), seq2.rbegin(), seq2.rend(),
-               std::back_inserter(expected));
+               std::rbegin(expected));
 
     auto result = std::vector<std::int32_t>{};
-    result.reserve(cnt1 + cnt2);
+    merge_decreasing(seq1.begin(), seq1.size(), seq2.begin(), seq2.size(),
+                     std::back_inserter(result));
 
-    if (seq1.size() != 0 && seq2.size() != 0) {
-      merge_decreasing(seq1.begin(), seq1.size(), seq2.begin(), seq2.size(),
-                       std::back_inserter(result));
-
-      EXPECT_EQ(expected.size(), result.size());
-      EXPECT_TRUE(
-          std::equal(expected.rbegin(), expected.rend(), result.begin()));
-    }
+    EXPECT_TRUE(eq(expected, result));
   }
 }
 

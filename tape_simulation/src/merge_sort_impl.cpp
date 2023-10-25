@@ -1,18 +1,26 @@
 #include <copy_n.hpp>
-#include <impl/merge_sort.hpp>
+#include <impl/merge_sort_impl.hpp>
 #include <merge.hpp>
+
+////////////////////////////////////////////////////////////////////////////////
+MergeSortImpl::ZeroInitialBlockSize_::ZeroInitialBlockSize_()
+    : std::invalid_argument(
+          "Trying creating sort instance with zero initial block size.") {
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 MergeSortImpl::MergeSortImpl(TapePool& tapePool, std::string_view inFilename,
                              std::string_view tmpDirectory,
                              std::size_t initialBlockSize, bool increasing)
-    : MergeSortArithmeticsBase(
+    try : MergeSortArithmeticsBase(
           tapePool.getOrOpenTape(std::string(inFilename)).getSize(),
           initialBlockSize),
       tapePool_{&tapePool},
       inFilename_{inFilename},
       increasing_{increasing},
       tapesManager_(tmpDirectory, maxBlockSize_) {
+} catch (MergeSortArithmeticsBase::ZeroInitialBlockSize_& e) {
+  throw ZeroInitialBlockSize_();
 }
 
 ////////////////////////////////////////////////////////////////////////////////

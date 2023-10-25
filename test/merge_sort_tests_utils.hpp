@@ -5,12 +5,14 @@
 #include <string>
 #include <vector>
 
-struct SortTestParam {
+struct MergeSortTestParam {
   std::string testDescription;
   std::vector<std::int32_t> values;
+  bool increasing;
 };
 
-std::vector<SortTestParam> generate_test_cases_of_sizes(
-    std::uint32_t seed, std::initializer_list<std::size_t> sizes);
+std::vector<MergeSortTestParam> generate_merge_sort_test_cases_of_sizes(
+    std::initializer_list<std::size_t> sizes, bool increasing,
+    std::uint32_t seed);
 
 #endif  // TEST_GENERATE_SORT_TESTS_HPP

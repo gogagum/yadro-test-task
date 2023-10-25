@@ -2,9 +2,15 @@
 #define TAPE_SIMULATION_IMPL_MERGE_SORT_ARITHMETICS_BASE_HPP
 
 #include <cstdint>
+#include <stdexcept>
 
 class MergeSortArithmeticsBase {
  protected:
+  class ZeroInitialBlockSize_ : std::invalid_argument {
+    public:
+     ZeroInitialBlockSize_();
+  };
+
   struct OperationBlocksCnts_ {
     std::size_t in;
     std::size_t in0;

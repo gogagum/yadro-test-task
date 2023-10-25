@@ -8,6 +8,7 @@
 #include <tape_view_write_iterators.hpp>
 
 #include "merge_test_utils.hpp"
+#include "common_utils.hpp"
 
 // NOLINTBEGIN(cppcoreguidelines-avoid-magic-numbers, readability-magic-numbers,
 // cert-err58-cpp)
@@ -33,13 +34,8 @@ TEST_P(MergeTapesTest, MergeSimple) {
   const auto tape1name = params.description + "_input_tape_1";
   const auto outTapeName = params.description + "_output_tape";
 
-  const bool tape0Removed = std::filesystem::remove(tape0name);
-  const bool tape1Removed = std::filesystem::remove(tape1name);
-  const bool outTapeRemoved = std::filesystem::remove(outTapeName);
-
-  const bool anyFileWasRemoved = tape0Removed || tape1Removed || outTapeRemoved;
-
-  // assert(!anyFileWasRemoved && "Some files were not removed.");
+  const auto itemsRemoved = remove_all(tape0name, tape1name, outTapeName);
+  assert(itemsRemoved == 0 && "Some files were not removed.");
 
   const auto inSize0 = params.input0.size();
   const auto inSize1 = params.input1.size();
@@ -79,28 +75,21 @@ TEST_P(MergeTapesTest, MergeSimple) {
     auto resultVec = std::vector<std::int32_t>(outSize);
     copy_n(LeftReadIterator(outTape), outSize, resultVec.rbegin());
 
-    std::vector<int> expected;
+    std::vector<int> expected(params.input0.size() + params.input1.size());
 
     if (params.increasing) {
       std::merge(params.input0.begin(), params.input0.end(),
                  params.input1.begin(), params.input1.end(),
-                 std::back_inserter(expected));
-      EXPECT_EQ(expected.size(), resultVec.size());
-      EXPECT_TRUE(
-          std::equal(expected.begin(), expected.end(), resultVec.begin()));
+                 expected.begin());
     } else {
       std::merge(params.input0.rbegin(), params.input0.rend(),
                  params.input1.rbegin(), params.input1.rend(),
-                 std::back_inserter(expected));
-      EXPECT_EQ(expected.size(), resultVec.size());
-      EXPECT_TRUE(
-          std::equal(expected.rbegin(), expected.rend(), resultVec.begin()));
+                 expected.rbegin());
     }
+    EXPECT_TRUE(eq(expected, resultVec));
   }
 
-  std::filesystem::remove(tape0name);
-  std::filesystem::remove(tape1name);
-  std::filesystem::remove(outTapeName);
+  remove_all(tape0name, tape1name, outTapeName);
 }
 
 static auto simpleMergesInputs = std::vector<MergeTestParam>{

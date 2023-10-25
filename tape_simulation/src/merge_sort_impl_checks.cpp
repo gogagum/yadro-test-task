@@ -1,5 +1,5 @@
 #include <cassert>
-#include <impl/merge_sort.hpp>
+#include <impl/merge_sort_impl.hpp>
 
 ////////////////////////////////////////////////////////////////////////////////
 void MergeSortImpl::checkStartPositions_(TapeView& in0, TapeView& in1,

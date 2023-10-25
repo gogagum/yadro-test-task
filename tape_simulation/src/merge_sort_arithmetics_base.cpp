@@ -25,7 +25,7 @@ auto MergeSortArithmeticsBase::calcTailsCounts_(std::size_t blocksCnt1,
     std::size_t blockSize) const -> Counts_ {
   const auto opBlocksCnt = calcOperationBlocksCnts_(blockSize);
   const auto [elementsCnt0, elementsCnt1] =
-      calcCounts_(opBlocksCnt.blocksIn0, opBlocksCnt.blocksIn1, blockSize);
+      calcCounts_(opBlocksCnt.in0, opBlocksCnt.in1, blockSize);
   return {elementsCnt0 - blocksCnt1 * blockSize,
           elementsCnt1 - blocksCnt1 * blockSize};
 }

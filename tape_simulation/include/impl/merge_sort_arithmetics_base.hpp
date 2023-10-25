@@ -4,14 +4,14 @@
 #include <cstdint>
 
 class MergeSortArithmeticsBase {
- public:
+ protected:
   struct OperationBlocksCnts_ {
-    std::size_t blocksIn;
-    std::size_t blocksIn0;
-    std::size_t blocksIn1;
-    std::size_t blocksOut;
-    std::size_t blocksOut0;
-    std::size_t blocksOut1;
+    std::size_t in;
+    std::size_t in0;
+    std::size_t in1;
+    std::size_t out;
+    std::size_t out0;
+    std::size_t out1;
   };
 
   struct Counts_ {

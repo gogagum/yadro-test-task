@@ -14,6 +14,7 @@ target_sources(tape_simulation
         src/tape_view_write_iterators.cpp
         src/tape_view_read_iterators.cpp
         src/merge_sort.cpp
+        src/merge_sort_improved.cpp
         src/copy_n.cpp
         src/merge.cpp
         src/merge_sort_impl.cpp
@@ -44,6 +45,7 @@ set(public_headers
     include/copy_top_elements_sorted.hpp
     include/merge.hpp
     include/merge_sort.hpp
+    include/merge_sort_improved.hpp
     include/copy_n.hpp
 )
 

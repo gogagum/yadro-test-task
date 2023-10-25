@@ -16,7 +16,7 @@ void copy_elements_sorted(InputIterator source, OutputIterator target,
   }
   q.push(*source);
   ++source;
-  for (std::size_t i = 1; i < elementsCnt + additionalScan; ++i, ++source) {
+  for (std::size_t i = 1; i < elementsCnt + additionalScan; ++i) {
     if (q.size() == elementsCnt) {
       const auto val = *source;
       if (!Compare()(q.top(), val)) {
@@ -26,10 +26,16 @@ void copy_elements_sorted(InputIterator source, OutputIterator target,
     } else {
       q.push(*source);
     }
+    if (i + 1 != elementsCnt + additionalScan) {
+      ++source;
+    }
   }
-  for (std::size_t i = 0; i < elementsCnt; ++i, ++target) {
+  for (std::size_t i = 0; i < elementsCnt; ++i) {
     *target = q.top();
     q.pop();
+    if (i + 1 != elementsCnt) {
+      ++target;
+    }
   }
 }
 

@@ -17,6 +17,7 @@ add_executable(tapes_tests
     tape_view_read_iterator.cpp
     copy_elements_sorted.cpp
     merge_sort.cpp
+    merge_sort_improved.cpp
     sort_test_utils.cpp
     merge_test_utils.cpp
 )

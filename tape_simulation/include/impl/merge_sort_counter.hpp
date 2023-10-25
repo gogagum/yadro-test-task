@@ -3,7 +3,7 @@
 
 #include <cstdint>
 
-class MergeSortCounter {
+class MergeSortArithmeticsBase {
  public:
   struct OperationBlocksCnts_ {
     std::size_t blocksIn;
@@ -19,60 +19,48 @@ class MergeSortCounter {
     std::size_t cnt1;
   };
 
- public:
-  MergeSortCounter(std::size_t elementsCnt, std::size_t initialBlockSize);
+ protected:
+  MergeSortArithmeticsBase(std::size_t elementsCnt,
+                           std::size_t initialBlockSize);
 
-  [[nodiscard]] std::size_t calcIterationsCnt() const;
-
-  [[nodiscard]] OperationBlocksCnts_ calcOperationBlocksCnts(
+  [[nodiscard]] OperationBlocksCnts_ calcOperationBlocksCnts_(
       std::size_t blockSize) const;
 
-  [[nodiscard]] Counts_ getBlocksCnts(std::size_t blockSize) const;
+  [[nodiscard]] Counts_ getBlocksCnts_(std::size_t blockSize) const;
 
-  [[nodiscard]] Counts_ calcCounts(std::size_t blocksCnt0,
+  [[nodiscard]] Counts_ calcCounts_(std::size_t blocksCnt0,
                                    std::size_t blocksCnt1,
                                    std::size_t blockSize) const;
 
-  [[nodiscard]] Counts_ calcTailsCounts(const OperationBlocksCnts_& opBlocksCnt,
+  [[nodiscard]] Counts_ calcTailsCounts_(const OperationBlocksCnts_& opBlocksCnt,
                                         std::size_t blocksCnt1,
                                         std::size_t blockSize) const;
 
-  [[nodiscard]] std::size_t getMaxBlockSize() const;
-
-  [[nodiscard]] std::size_t getIterationsCnt() const;
-
  private:
-  std::size_t elementsCnt_;
-  std::size_t initialBlockSize_;
-  std::size_t iterationsCnt_;
+  [[nodiscard]] std::size_t calcIterationsCnt_() const;
+
+ protected:
+  const std::size_t elementsCnt_;
+  const std::size_t initialBlockSize_;
+  const std::size_t iterationsCnt_;
   const std::size_t maxBlockSize_;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
-inline auto MergeSortCounter::calcTailsCounts(
+inline auto MergeSortArithmeticsBase::calcTailsCounts_(
     const OperationBlocksCnts_& opBlocksCnt, std::size_t blocksCnt1,
     std::size_t blockSize) const -> Counts_ {
   const auto [elementsCnt0, elementsCnt1] =
-      calcCounts(opBlocksCnt.blocksIn0, opBlocksCnt.blocksIn1, blockSize);
+      calcCounts_(opBlocksCnt.blocksIn0, opBlocksCnt.blocksIn1, blockSize);
   return {elementsCnt0 - blocksCnt1 * blockSize,
           elementsCnt1 - blocksCnt1 * blockSize};
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-inline auto MergeSortCounter::getBlocksCnts(std::size_t blockSize) const
+inline auto MergeSortArithmeticsBase::getBlocksCnts_(std::size_t blockSize) const
     -> Counts_ {
   return {(elementsCnt_ / blockSize - 1) / 2 + 1,
           (elementsCnt_ / blockSize) / 2};
-}
-
-////////////////////////////////////////////////////////////////////////////////
-inline std::size_t MergeSortCounter::getMaxBlockSize() const {
-  return maxBlockSize_;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-inline std::size_t MergeSortCounter::getIterationsCnt() const {
-  return iterationsCnt_;
 }
 
 #endif  // TAPE_SIMULATION_IMPL_MERGE_SORT_COUNTER

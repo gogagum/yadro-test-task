@@ -31,18 +31,16 @@ void MergeSort::perform(std::string_view outFilename) && {
   makeInitialBlocks_(inTape, tapesManager_.getInitialOutTape0(),
                      tapesManager_.getInitialOutTape1());
 
-  std::size_t iterationsLeft = mergeSortCounter_.getIterationsCnt();
+  std::size_t iterationsLeft = iterationsCnt_;
   std::size_t blockSize = 1;
 
   for (; iterationsLeft > 0; --iterationsLeft, blockSize *= 2) {
-    const std::size_t iterationIdx =
-        mergeSortCounter_.getIterationsCnt() - iterationsLeft;
+    const std::size_t iterationIdx = iterationsCnt_ - iterationsLeft;
     mergeBlocks_(blockSize, iterationIdx, iterationsLeft);
   }
 
-  mergeIntoOutputTape_(
-      tapesManager_.getInTape0(mergeSortCounter_.getIterationsCnt()),
-      tapesManager_.getInTape1(mergeSortCounter_.getIterationsCnt()), outTape);
+  mergeIntoOutputTape_(tapesManager_.getInTape0(iterationsCnt_),
+                       tapesManager_.getInTape1(iterationsCnt_), outTape);
 
   tapesManager_.removeTmp();
 }
@@ -50,7 +48,7 @@ void MergeSort::perform(std::string_view outFilename) && {
 ////////////////////////////////////////////////////////////////////////////////
 void MergeSort::makeInitialBlocks_(TapeView& in, TapeView& out0,
                                    TapeView& out1) const {
-  const auto [to0Cnt, to1Cnt] = mergeSortCounter_.getBlocksCnts(1);
+  const auto [to0Cnt, to1Cnt] = getBlocksCnts_(1);
   auto read = RightReadIterator(in);
   copy_n(read, to0Cnt, RightWriteIterator(out0));
   ++read;

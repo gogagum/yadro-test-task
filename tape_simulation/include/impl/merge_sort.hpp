@@ -13,7 +13,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \brief class MergeSortImpl
-class MergeSortImpl {
+class MergeSortImpl : protected MergeSortArithmeticsBase {
  protected:
   MergeSortImpl(TapePool& tapePool, std::string_view inFilename,
                 std::string_view tmpDirectory, std::size_t initialBlockSize,
@@ -99,8 +99,7 @@ class MergeSortImpl {
 
   void processPartialBlocks_(LeftReadIterator& in0, std::size_t cnt0,
                              LeftReadIterator& in1, std::size_t cnt1,
-                             RightWriteIterator& out0, bool increasing,
-                             bool moveInTheEnd) const;
+                             RightWriteIterator& out0, bool increasing) const;
 
   void processBlocksPairs_(LeftReadIterator& in0, LeftReadIterator& in1,
                            RightWriteIterator& out0, std::size_t blocksOut0,
@@ -127,8 +126,8 @@ class MergeSortImpl {
 
  protected:
   TapePool* tapePool_;
-  const std::size_t elementsCnt_;
-  MergeSortCounter mergeSortCounter_;
+  //const std::size_t elementsCnt_;
+  //MergeSortArithmeticsBase mergeSortCounter_;
   const std::string inFilename_;
   const bool increasing_;
   MergeSortAdditionalTapesManager tapesManager_;

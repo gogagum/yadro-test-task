@@ -6,34 +6,26 @@
 MergeSortImpl::MergeSortImpl(TapePool& tapePool, std::string_view inFilename,
                              std::string_view tmpDirectory,
                              std::size_t initialBlockSize, bool increasing)
-    : tapePool_{&tapePool},
-      elementsCnt_{tapePool_->getOrOpenTape(std::string(inFilename)).getSize()},
-      mergeSortCounter_(elementsCnt_, initialBlockSize),
+    : MergeSortArithmeticsBase(
+          tapePool.getOrOpenTape(std::string(inFilename)).getSize(),
+          initialBlockSize),
+      tapePool_{&tapePool},
       inFilename_{inFilename},
       increasing_{increasing},
-      tapesManager_(tapePool, tmpDirectory,
-                    mergeSortCounter_.getMaxBlockSize()) {
+      tapesManager_(tapePool, tmpDirectory, maxBlockSize_) {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 void MergeSortImpl::processPartialBlocks_(
     LeftReadIterator& in0, std::size_t cnt0, LeftReadIterator& in1,
-    std::size_t cnt1, RightWriteIterator& out, bool increasing,
-    bool moveInTheEnd) const {
+    std::size_t cnt1, RightWriteIterator& out, bool increasing) const {
   if (cnt1 == 0) {
     copy_n(in0, cnt0, out);
-    if (moveInTheEnd) {
-      ++in0;
-    }
   } else {
     if (increasing) {
       merge_increasing(in0, cnt0, in1, cnt1, out);
     } else {
       merge_decreasing(in0, cnt0, in1, cnt1, out);
-    }
-    if (moveInTheEnd) {
-      ++in0;
-      ++in1;
     }
   }
 }
@@ -109,20 +101,24 @@ void MergeSortImpl::mergeBlocks0AndCheck_(TapeView& in0, TapeView& in1,
 void MergeSortImpl::mergeBlocks0_(
     LeftReadIterator read0, LeftReadIterator read1, RightWriteIterator write0,
     RightWriteIterator write1, std::size_t blockSize, bool increasing) const {
-  const auto opBlocksCnt = mergeSortCounter_.calcOperationBlocksCnts(blockSize);
+  const auto opBlocksCnt = calcOperationBlocksCnts_(blockSize);
   auto& tailWrite = (opBlocksCnt.blocksOut % 2 == 0) ? write0 : write1;
 
-  auto [inTailSize0, inTailSize1] = mergeSortCounter_.calcTailsCounts(
+  auto [inTailSize0, inTailSize1] = calcTailsCounts_(
       opBlocksCnt, opBlocksCnt.blocksIn1, blockSize);
 
   if (inTailSize0 + inTailSize1 != 0) {
     processPartialBlocks_(read0, inTailSize0, read1, inTailSize1, tailWrite,
-                          increasing, true);
+                          increasing);
     if (opBlocksCnt.blocksOut % 2 == 0 && opBlocksCnt.blocksOut0 != 0) {
       ++write0;
     }
     if (opBlocksCnt.blocksOut % 2 == 1 && opBlocksCnt.blocksOut1 != 0) {
       ++write1;
+    }
+    ++read0;
+    if (inTailSize1 != 0) {
+      ++read1;
     }
   }
 
@@ -148,12 +144,12 @@ void MergeSortImpl::mergeBlocks1AndCheck_(TapeView& in0, TapeView& in1,
 void MergeSortImpl::mergeBlocks1_(
     LeftReadIterator read0, LeftReadIterator read1, RightWriteIterator write0,
     RightWriteIterator write1, std::size_t blockSize, bool increasing) const {
-  const auto opBlocksCnt = mergeSortCounter_.calcOperationBlocksCnts(blockSize);
+  const auto opBlocksCnt = calcOperationBlocksCnts_(blockSize);
 
   processBlocksPairs_(read0, read1, write0, opBlocksCnt.blocksOut0, write1,
                       opBlocksCnt.blocksOut1, blockSize, increasing);
 
-  auto [inTailSize0, inTailSize1] = mergeSortCounter_.calcTailsCounts(
+  auto [inTailSize0, inTailSize1] = calcTailsCounts_(
       opBlocksCnt, opBlocksCnt.blocksIn1, blockSize);
 
   if (inTailSize0 != 0 && opBlocksCnt.blocksOut != 0) {
@@ -171,7 +167,7 @@ void MergeSortImpl::mergeBlocks1_(
       ++tailWrite;
     }
     processPartialBlocks_(read0, inTailSize0, read1, inTailSize1, tailWrite,
-                          increasing, false);
+                          increasing);
   }
 }
 
@@ -184,7 +180,7 @@ void MergeSortImpl::mergeIntoOutputTape_(TapeView& inTape0, TapeView& inTape1,
   auto in1 = LeftReadIterator(inTape1);
   auto out = RightWriteIterator(outTape);
 
-  const auto blockSize = mergeSortCounter_.getMaxBlockSize();
+  const auto blockSize = maxBlockSize_;
 
   if (increasing_) {
     merge_increasing(in0, blockSize, in1, elementsCnt_ - blockSize, out);

@@ -19,7 +19,7 @@ target_sources(tape_simulation
         src/merge_sort_impl.cpp
         src/merge_sort_impl_checks.cpp
         src/merge_sort_additional_tapes_manager.cpp
-        src/merge_sort_counter.cpp
+        src/merge_sort_arithmetics_base.cpp
 )
 
 target_include_directories(tape_simulation

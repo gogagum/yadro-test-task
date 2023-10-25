@@ -1,4 +1,4 @@
-#include <impl/merge_sort_counter.hpp>
+#include <impl/merge_sort_arithmetics_base.hpp>
 
 ////////////////////////////////////////////////////////////////////////////////
 MergeSortArithmeticsBase::MergeSortArithmeticsBase(std::size_t elementsCnt,

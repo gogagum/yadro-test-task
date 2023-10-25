@@ -8,7 +8,7 @@
 #include "../tape_view_read_iterators.hpp"
 #include "../tape_view_write_iterators.hpp"
 #include "merge_sort_additional_tapes_manager.hpp"
-#include "merge_sort_counter.hpp"
+#include "merge_sort_arithmetics_base.hpp"
 #include "tape_view.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////

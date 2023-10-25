@@ -2,7 +2,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 MergeSortArithmeticsBase::MergeSortArithmeticsBase(std::size_t elementsCnt,
-                                   std::size_t initialBlockSize)
+                                                   std::size_t initialBlockSize)
     : elementsCnt_{elementsCnt},
       initialBlockSize_{initialBlockSize},
       iterationsCnt_{calcIterationsCnt_()},
@@ -21,8 +21,18 @@ std::size_t MergeSortArithmeticsBase::calcIterationsCnt_() const {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-auto MergeSortArithmeticsBase::calcOperationBlocksCnts_(std::size_t blockSize) const
-    -> OperationBlocksCnts_ {
+auto MergeSortArithmeticsBase::calcTailsCounts_(std::size_t blocksCnt1,
+    std::size_t blockSize) const -> Counts_ {
+  const auto opBlocksCnt = calcOperationBlocksCnts_(blockSize);
+  const auto [elementsCnt0, elementsCnt1] =
+      calcCounts_(opBlocksCnt.blocksIn0, opBlocksCnt.blocksIn1, blockSize);
+  return {elementsCnt0 - blocksCnt1 * blockSize,
+          elementsCnt1 - blocksCnt1 * blockSize};
+}
+
+////////////////////////////////////////////////////////////////////////////////
+auto MergeSortArithmeticsBase::calcOperationBlocksCnts_(
+    std::size_t blockSize) const -> OperationBlocksCnts_ {
   const auto inBlocksCnt = elementsCnt_ / blockSize;
   const auto [inBlocksCnt0, inBlocksCnt1] = getBlocksCnts_(blockSize);
   const auto outBlockCnt = elementsCnt_ / (blockSize * 2);
@@ -33,8 +43,9 @@ auto MergeSortArithmeticsBase::calcOperationBlocksCnts_(std::size_t blockSize) c
 
 ////////////////////////////////////////////////////////////////////////////////
 auto MergeSortArithmeticsBase::calcCounts_(std::size_t blocksCnt0,
-                                   std::size_t blocksCnt1,
-                                   std::size_t blockSize) const -> Counts_ {
+                                           std::size_t blocksCnt1,
+                                           std::size_t blockSize) const
+    -> Counts_ {
   const auto blocksCnt = blocksCnt0 + blocksCnt1;
   if (blocksCnt % 2 == 0) {
     return {elementsCnt_ - blocksCnt1 * blockSize, blocksCnt1 * blockSize};

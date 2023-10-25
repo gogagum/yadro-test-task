@@ -22,11 +22,7 @@ void MergeSortImpl::processPartialBlocks_(
   if (cnt1 == 0) {
     copy_n(in0, cnt0, out);
   } else {
-    if (increasing) {
-      merge_increasing(in0, cnt0, in1, cnt1, out);
-    } else {
-      merge_decreasing(in0, cnt0, in1, cnt1, out);
-    }
+    merge_(in0, cnt0, in1, cnt1, out, increasing);
   }
 }
 
@@ -36,11 +32,7 @@ void MergeSortImpl::processBlocksPairs_(
     std::size_t blocksOut0, RightWriteIterator& out1, std::size_t blocksOut1,
     std::size_t blockSize, bool increasing) const {
   for (std::size_t i = 0; i < blocksOut0; ++i) {
-    if (increasing) {
-      merge_increasing(in0, blockSize, in1, blockSize, out0);
-    } else {
-      merge_decreasing(in0, blockSize, in1, blockSize, out0);
-    }
+    merge_(in0, blockSize, in1, blockSize, out0, increasing);
     if (i + 1 != blocksOut0) {
       ++in0;
       ++in1;
@@ -52,11 +44,7 @@ void MergeSortImpl::processBlocksPairs_(
     ++in0;
     ++in1;
     for (std::size_t i = 0; i < blocksOut1; ++i) {
-      if (increasing) {
-        merge_increasing(in0, blockSize, in1, blockSize, out1);
-      } else {
-        merge_decreasing(in0, blockSize, in1, blockSize, out1);
-      }
+      merge_(in0, blockSize, in1, blockSize, out1, increasing);
       if (i + 1 != blocksOut1) {
         ++in0;
         ++in1;
@@ -101,20 +89,20 @@ void MergeSortImpl::mergeBlocks0AndCheck_(TapeView& in0, TapeView& in1,
 void MergeSortImpl::mergeBlocks0_(
     LeftReadIterator read0, LeftReadIterator read1, RightWriteIterator write0,
     RightWriteIterator write1, std::size_t blockSize, bool increasing) const {
-  const auto opBlocksCnt = calcOperationBlocksCnts_(blockSize);
-  auto& tailWrite = (opBlocksCnt.blocksOut % 2 == 0) ? write0 : write1;
+  const auto [_0, _1, blocksIn1, blocksOut, blocksOut0, blocksOut1] =
+      calcOperationBlocksCnts_(blockSize);
 
-  auto [inTailSize0, inTailSize1] = calcTailsCounts_(
-      opBlocksCnt, opBlocksCnt.blocksIn1, blockSize);
+  auto [inTailSize0, inTailSize1] = calcTailsCounts_(blocksIn1, blockSize);
 
   if (inTailSize0 + inTailSize1 != 0) {
+    const bool tailTo0 = (blocksOut % 2 == 0);
+    auto& tailWrite = tailTo0 ? write0 : write1;
+
     processPartialBlocks_(read0, inTailSize0, read1, inTailSize1, tailWrite,
                           increasing);
-    if (opBlocksCnt.blocksOut % 2 == 0 && opBlocksCnt.blocksOut0 != 0) {
-      ++write0;
-    }
-    if (opBlocksCnt.blocksOut % 2 == 1 && opBlocksCnt.blocksOut1 != 0) {
-      ++write1;
+    if (const auto blocksAfterTailWrite = tailTo0 ? blocksOut0 : blocksOut1;
+        blocksAfterTailWrite != 0) {
+      ++tailWrite;
     }
     ++read0;
     if (inTailSize1 != 0) {
@@ -122,8 +110,8 @@ void MergeSortImpl::mergeBlocks0_(
     }
   }
 
-  processBlocksPairs_(read0, read1, write0, opBlocksCnt.blocksOut0, write1,
-                      opBlocksCnt.blocksOut1, blockSize, increasing);
+  processBlocksPairs_(read0, read1, write0, blocksOut0, write1, blocksOut1,
+                      blockSize, increasing);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -144,28 +132,29 @@ void MergeSortImpl::mergeBlocks1AndCheck_(TapeView& in0, TapeView& in1,
 void MergeSortImpl::mergeBlocks1_(
     LeftReadIterator read0, LeftReadIterator read1, RightWriteIterator write0,
     RightWriteIterator write1, std::size_t blockSize, bool increasing) const {
-  const auto opBlocksCnt = calcOperationBlocksCnts_(blockSize);
+  const auto [_0, _1, blocksIn1, blocksOut, blocksOut0, blocksOut1] =
+      calcOperationBlocksCnts_(blockSize);
 
-  processBlocksPairs_(read0, read1, write0, opBlocksCnt.blocksOut0, write1,
-                      opBlocksCnt.blocksOut1, blockSize, increasing);
+  processBlocksPairs_(read0, read1, write0, blocksOut0, write1, blocksOut1,
+                      blockSize, increasing);
 
-  auto [inTailSize0, inTailSize1] = calcTailsCounts_(
-      opBlocksCnt, opBlocksCnt.blocksIn1, blockSize);
-
-  if (inTailSize0 != 0 && opBlocksCnt.blocksOut != 0) {
-    ++read0;
-  }
-
-  if (inTailSize1 != 0 && opBlocksCnt.blocksOut != 0) {
-    ++read1;
-  }
-
-  auto& tailWrite = (opBlocksCnt.blocksOut % 2 == 0) ? write0 : write1;
+  auto [inTailSize0, inTailSize1] = calcTailsCounts_(blocksIn1, blockSize);
 
   if (inTailSize0 != 0 || inTailSize1 != 0) {
-    if (opBlocksCnt.blocksOut1 != 0) {
-      ++tailWrite;
+    auto& tailWrite = (blocksOut % 2 == 0) ? write0 : write1;
+
+    if (blocksOut != 0) {
+      ++read0;
+
+      if (inTailSize1 != 0) {
+        ++read1;
+      }
+
+      if (inTailSize0 + inTailSize1 != 0 && blocksOut1 != 0) {
+        ++tailWrite;
+      }
     }
+
     processPartialBlocks_(read0, inTailSize0, read1, inTailSize1, tailWrite,
                           increasing);
   }
@@ -176,15 +165,18 @@ void MergeSortImpl::mergeIntoOutputTape_(TapeView& inTape0, TapeView& inTape1,
                                          TapeView& outTape) const {
   checkFinalPositions_(inTape0, inTape1);
 
-  auto in0 = LeftReadIterator(inTape0);
-  auto in1 = LeftReadIterator(inTape1);
-  auto out = RightWriteIterator(outTape);
+  merge_(LeftReadIterator(inTape0), maxBlockSize_, LeftReadIterator(inTape1),
+         elementsCnt_ - maxBlockSize_, RightWriteIterator(outTape),
+         increasing_);
+}
 
-  const auto blockSize = maxBlockSize_;
-
-  if (increasing_) {
-    merge_increasing(in0, blockSize, in1, elementsCnt_ - blockSize, out);
+////////////////////////////////////////////////////////////////////////////////
+void MergeSortImpl::merge_(LeftReadIterator in0, std::size_t n0,
+                           LeftReadIterator in1, std::size_t n1,
+                           RightWriteIterator out, bool increasing) const {
+  if (increasing) {
+    merge_increasing(in0, n0, in1, n1, out);
   } else {
-    merge_decreasing(in0, blockSize, in1, elementsCnt_ - blockSize, out);
+    merge_decreasing(in0, n0, in1, n1, out);
   }
 }

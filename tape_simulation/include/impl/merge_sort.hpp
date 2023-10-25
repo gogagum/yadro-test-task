@@ -109,6 +109,9 @@ class MergeSortImpl : protected MergeSortArithmeticsBase {
   void mergeIntoOutputTape_(TapeView& inTape0, TapeView& inTape1,
                             TapeView& outTape) const;
 
+  void merge_(LeftReadIterator in0, std::size_t n0, LeftReadIterator in1,
+              std::size_t n1, RightWriteIterator out, bool increasing) const;
+
  private:
   //////////////////////////////////////////////////////////////////////////////
   // Checks                                                                   //
@@ -126,8 +129,6 @@ class MergeSortImpl : protected MergeSortArithmeticsBase {
 
  protected:
   TapePool* tapePool_;
-  //const std::size_t elementsCnt_;
-  //MergeSortArithmeticsBase mergeSortCounter_;
   const std::string inFilename_;
   const bool increasing_;
   MergeSortAdditionalTapesManager tapesManager_;

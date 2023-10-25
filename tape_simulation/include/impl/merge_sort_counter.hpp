@@ -29,12 +29,11 @@ class MergeSortArithmeticsBase {
   [[nodiscard]] Counts_ getBlocksCnts_(std::size_t blockSize) const;
 
   [[nodiscard]] Counts_ calcCounts_(std::size_t blocksCnt0,
-                                   std::size_t blocksCnt1,
-                                   std::size_t blockSize) const;
+                                    std::size_t blocksCnt1,
+                                    std::size_t blockSize) const;
 
-  [[nodiscard]] Counts_ calcTailsCounts_(const OperationBlocksCnts_& opBlocksCnt,
-                                        std::size_t blocksCnt1,
-                                        std::size_t blockSize) const;
+  [[nodiscard]] Counts_ calcTailsCounts_(std::size_t blocksCnt1,
+                                         std::size_t blockSize) const;
 
  private:
   [[nodiscard]] std::size_t calcIterationsCnt_() const;
@@ -47,18 +46,8 @@ class MergeSortArithmeticsBase {
 };
 
 ////////////////////////////////////////////////////////////////////////////////
-inline auto MergeSortArithmeticsBase::calcTailsCounts_(
-    const OperationBlocksCnts_& opBlocksCnt, std::size_t blocksCnt1,
+inline auto MergeSortArithmeticsBase::getBlocksCnts_(
     std::size_t blockSize) const -> Counts_ {
-  const auto [elementsCnt0, elementsCnt1] =
-      calcCounts_(opBlocksCnt.blocksIn0, opBlocksCnt.blocksIn1, blockSize);
-  return {elementsCnt0 - blocksCnt1 * blockSize,
-          elementsCnt1 - blocksCnt1 * blockSize};
-}
-
-////////////////////////////////////////////////////////////////////////////////
-inline auto MergeSortArithmeticsBase::getBlocksCnts_(std::size_t blockSize) const
-    -> Counts_ {
   return {(elementsCnt_ / blockSize - 1) / 2 + 1,
           (elementsCnt_ / blockSize) / 2};
 }

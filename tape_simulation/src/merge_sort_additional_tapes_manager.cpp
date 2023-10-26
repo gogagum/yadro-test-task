@@ -1,6 +1,7 @@
 #include <filesystem>
 #include <impl/merge_sort_additional_tapes_manager.hpp>
 #include <string_view>
+#include <sstream>
 
 ////////////////////////////////////////////////////////////////////////////////
 MergeSortAdditionalTapesManager::MergeSortAdditionalTapesManager(

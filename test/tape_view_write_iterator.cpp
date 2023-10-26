@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 
 #include <cassert>
+#include <array>
 #include <filesystem>
 #include <tape_pool.hpp>
 #include <tape_view_write_iterators.hpp>

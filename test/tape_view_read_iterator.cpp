@@ -1,5 +1,6 @@
 #include <gtest/gtest.h>
 
+#include <array>
 #include <cassert>
 #include <filesystem>
 #include <tape_pool.hpp>

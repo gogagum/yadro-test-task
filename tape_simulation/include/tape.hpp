@@ -36,7 +36,7 @@ class Tape {
  public:
   /**
    * @brief Tape constructor. Tape is created from an existing file if size is
-   * given an opens a file as an exiting tape.
+   * given and opens a file as an exiting tape.
    *
    * @param filename tape filename.
    * @param size size of a tape.

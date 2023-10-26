@@ -26,3 +26,6 @@ target_link_libraries(sort_simple PRIVATE tape_simulation argparse)
 
 add_executable(sort_improved src/sort_improved.cpp)
 target_link_libraries(sort_improved PRIVATE tape_simulation argparse)
+
+add_executable(generate_tape src/generate_tape.cpp)
+target_link_libraries(generate_tape PRIVATE tape_simulation argparse)

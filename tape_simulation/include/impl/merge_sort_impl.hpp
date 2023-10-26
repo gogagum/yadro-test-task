@@ -25,6 +25,13 @@ class MergeSortImpl : protected MergeSortArithmeticsBase {
                 std::string_view tmpDirectory, std::size_t initialBlockSize,
                 bool increasing);
 
+ public:
+  MergeSortImpl() = delete;
+  MergeSortImpl(const MergeSortImpl&) = delete;
+  MergeSortImpl(MergeSortImpl&&) noexcept = delete;
+  auto operator=(const MergeSortImpl&) = delete;
+  auto operator=(MergeSortImpl&&) = delete;
+
  protected:
   /**
    * @brief mergeBlocks_ performs one of merge blocks depending on iteration
@@ -118,6 +125,9 @@ class MergeSortImpl : protected MergeSortArithmeticsBase {
   void merge_(LeftReadIterator in0, std::size_t n0, LeftReadIterator in1,
               std::size_t n1, RightWriteIterator out, bool increasing) const;
 
+
+  ~MergeSortImpl();
+
  private:
   //////////////////////////////////////////////////////////////////////////////
   // Checks                                                                   //
@@ -131,11 +141,17 @@ class MergeSortImpl : protected MergeSortArithmeticsBase {
   //                                                                          //
   //////////////////////////////////////////////////////////////////////////////
 
+
  protected:
   TapePool* tapePool_;
-  const std::string inFilename_;
   const bool increasing_;
   MergeSortAdditionalTapesManager tapesManager_;
+  std::string inFilename_;
 };
+
+////////////////////////////////////////////////////////////////////////////////
+inline MergeSortImpl::~MergeSortImpl() {
+  tapePool_->closeTape(inFilename_);
+}
 
 #endif  // TAPE_SIMULATION_IMPL_MERGE_SORT_IMPL_HPP

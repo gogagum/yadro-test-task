@@ -59,6 +59,13 @@ class TapePool : public TapePoolStatisticsBase {
    */
   void removeTape(const std::string& filename);
 
+  /**
+   * @brief Close tape.
+   * 
+   * @param filename tape file to close.
+   */
+  void closeTape(const std::string& filename);
+
  private:
   std::map<std::string, Tape> tapes_;
 

@@ -41,6 +41,7 @@ void MergeSort::perform(std::string_view outFilename) && {
 
   mergeIntoOutputTape_(tapesManager_.getInTape0(iterationsCnt_),
                        tapesManager_.getInTape1(iterationsCnt_), outTape);
+  tapePool_->closeTape(std::string(outFilename));
 }
 
 ////////////////////////////////////////////////////////////////////////////////

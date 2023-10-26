@@ -57,7 +57,25 @@ TapeView TapePool::getOrOpenTape(const std::string& filename) {
 
 ////////////////////////////////////////////////////////////////////////////////
 void TapePool::removeTape(const std::string& filename) {
+  if (tapes_.find(filename) == tapes_.end()) {
+    std::stringstream messageStream;
+    messageStream << "Trying removing tape (" << filename
+                  << ") which is not opened." << std::endl;
+    throw std::logic_error(messageStream.str());
+  }
   increaseRemoveCnt();
   tapes_.erase(filename);
   std::filesystem::remove(filename);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void TapePool::closeTape(const std::string& filename) {
+  if (tapes_.find(filename) == tapes_.end()) {
+    std::stringstream messageStream;
+    messageStream << "Trying closing tape (" << filename
+                  << ") which is not opened." << std::endl;
+    throw std::logic_error(messageStream.str());
+  }
+  increaseCloseCnt();
+  tapes_.erase(filename);
 }

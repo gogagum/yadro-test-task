@@ -7,7 +7,8 @@
 
 class MergeSortAdditionalTapesManager {
  public:
-  MergeSortAdditionalTapesManager(std::string_view path, std::size_t tapeSize);
+  MergeSortAdditionalTapesManager(TapePool& tapePool, std::string_view path,
+                                  std::size_t tapeSize);
   MergeSortAdditionalTapesManager(const MergeSortAdditionalTapesManager&) =
       delete;
   MergeSortAdditionalTapesManager(MergeSortAdditionalTapesManager&&) noexcept =
@@ -34,7 +35,7 @@ class MergeSortAdditionalTapesManager {
   ~MergeSortAdditionalTapesManager();
 
  private:
-  TapePool tapePool_{};
+  TapePool* tapePool_{};
   const std::string path_;
   const bool needToRemove_;
   TapeView tmpTape00_;

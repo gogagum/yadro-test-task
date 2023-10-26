@@ -18,7 +18,7 @@ MergeSortImpl::MergeSortImpl(TapePool& tapePool, std::string_view inFilename,
       tapePool_{&tapePool},
       inFilename_{inFilename},
       increasing_{increasing},
-      tapesManager_(tmpDirectory, maxBlockSize_) {
+      tapesManager_(tapePool, tmpDirectory, maxBlockSize_) {
 } catch (MergeSortArithmeticsBase::ZeroInitialBlockSize_& e) {
   throw ZeroInitialBlockSize_();
 }

@@ -1,0 +1,98 @@
+name: build-and-test
+on:
+  push:
+    branches: [ dev, main ]
+
+jobs:
+    linux-gcc:
+        name: Linux GCC
+        runs-on: ubuntu-22.04
+        env:
+            CC: gcc-13
+            CXX: g++-13
+        steps:
+            - uses: actions/checkout@v3
+            - run: |
+                  sudo apt-get update
+                  sudo apt-get install -y ninja-build g++-13 libstdc++-13-dev libc6-dbg
+                  sudo snap install valgrind --classic
+            - run: /bin/bash .ci/build-project.sh build-simple
+            - run: ./build-simple/test/tapes_tests
+            - run: /bin/bash .ci/build-project-valgrind.sh build-valgrind
+            - run: valgrind ./build-valgrind/test/tapes_tests
+
+    linux-clang-16-libcpp:
+        name: Linux Clang 16 (libc++)
+        runs-on: ubuntu-22.04
+        env:
+            CC: clang-16
+            CXX: clang++-16
+            CXXFLAGS: -stdlib=libc++
+        steps:
+            - uses: actions/checkout@v3
+            - run: |
+                  sudo apt-get update
+                  sudo apt-get install -y ninja-build libc6-dbg
+                  sudo snap install valgrind --classic
+                  wget https://apt.llvm.org/llvm.sh
+                  chmod +x llvm.sh
+                  sudo ./llvm.sh 16
+                  sudo apt-get install -y libc++-16-dev libc++abi-16-dev
+            - run: /bin/bash .ci/build-project.sh build-simple
+            - run: ./build-simple/test/tapes_tests
+            - run: /bin/bash .ci/build-project-valgrind.sh build-valgrind
+            - run: valgrind ./build-valgrind/test/tapes_tests
+
+    linux-clang-16-libstdcpp:
+        name: Linux Clang 16 (libstdc++)
+        runs-on: ubuntu-22.04
+        env:
+            CC: clang-16
+            CXX: clang++-16
+            CXXFLAGS: -stdlib=libstdc++
+        steps:
+            - uses: actions/checkout@v3
+            - run: |
+                  sudo apt-get update
+                  sudo apt-get install -y ninja-build libstdc++-13-dev libc6-dbg
+                  sudo snap install valgrind --classic
+                  wget https://apt.llvm.org/llvm.sh
+                  chmod +x llvm.sh
+                  sudo ./llvm.sh 16
+            - run: /bin/bash .ci/build-project.sh build-simple
+            - run: ./build-simple/test/tapes_tests
+            - run: /bin/bash .ci/build-project-valgrind.sh build-valgrind
+            - run: valgrind ./build-valgrind/test/tapes_tests
+
+    mac-gcc:
+        name: macOS GCC
+        runs-on: macos-latest
+        env:
+            CC: gcc-13
+            CXX: g++-13
+        steps:
+            - uses: actions/checkout@v3
+            - run: brew install ninja gcc@13
+            - run: /bin/bash .ci/build-project.sh build-simple
+            - run: ./build-simple/test/tapes_tests
+
+    mac-clang-libcpp:
+        name: macOS Clang (libc++)
+        runs-on: macos-latest
+        env:
+            CC: /usr/local/opt/llvm/bin/clang
+            CXX: /usr/local/opt/llvm/bin/clang++
+            CXXFLAGS: -stdlib=libc++
+        steps:
+            - uses: actions/checkout@v3
+            - run: brew install ninja llvm@16
+            - run: /bin/bash .ci/build-project.sh build-simple
+            - run: ./build-simple/test/tapes_tests
+
+    windows-msvc:
+        name: Windows MSVC
+        runs-on: windows-latest
+        steps:
+            - uses: actions/checkout@v3
+            - run: .ci\build-project.ps1
+            - run: ./build/test/Debug/tapes_tests.exe

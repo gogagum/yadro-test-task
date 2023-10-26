@@ -1,6 +1,6 @@
 #include <argparse/argparse.hpp>
 #include <iostream>
-#include <merge_sort_improved.hpp>
+#include <improved_merge_sort.hpp>
 #include <tape_pool.hpp>
 
 #include "base_app.hpp"
@@ -34,7 +34,7 @@ class SortSimple : BaseApp {
 
       auto tapePool = TapePool();
       auto config = ConfigParser(configFilename).read();
-      MergeSortImproved(tapePool, inFilename, "tmp", true, m / 4).perform(outFilename);
+      ImprovedMergeSortImproved(tapePool, inFilename, "tmp", true, m / 4).perform(outFilename);
       printReport_(config, tapePool.getStatistics());
     } catch (const std::exception& e) {
       std::cerr << e.what() << std::endl;

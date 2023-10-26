@@ -14,13 +14,14 @@ target_sources(tape_simulation
         src/tape_view_write_iterators.cpp
         src/tape_view_read_iterators.cpp
         src/merge_sort.cpp
-        src/merge_sort_improved.cpp
+        src/improved_merge_sort.cpp
         src/copy_n.cpp
         src/merge.cpp
         src/merge_sort_impl.cpp
         src/merge_sort_impl_checks.cpp
         src/merge_sort_additional_tapes_manager.cpp
         src/merge_sort_arithmetics_base.cpp
+        src/copy_elements_sorted.cpp
 )
 
 target_include_directories(tape_simulation

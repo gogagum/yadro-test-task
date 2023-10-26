@@ -1,5 +1,5 @@
-#ifndef TAPE_SIMULATION_MERGE_SORT_IMPROVED_HPP
-#define TAPE_SIMULATION_MERGE_SORT_IMPROVED_HPP
+#ifndef TAPE_SIMULATION_IMPROVED_MERGE_SORT_HPP
+#define TAPE_SIMULATION_IMPROVED_MERGE_SORT_HPP
 
 #include <cassert>
 #include <string>
@@ -10,7 +10,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \brief class MergeSort - merge sort class.
-class MergeSortImproved : private MergeSortImpl {
+class ImprovedMergeSortImproved : private MergeSortImpl {
  public:
   class ZeroHeapSizeLimit : std::logic_error {
    public:
@@ -18,7 +18,7 @@ class MergeSortImproved : private MergeSortImpl {
   };
 
  public:
-  MergeSortImproved(TapePool& tapePool, std::string_view inFilename,
+  ImprovedMergeSortImproved(TapePool& tapePool, std::string_view inFilename,
                     std::string_view tmpDirectory, bool increasing,
                     std::size_t heapSizeLimit);
 
@@ -32,4 +32,4 @@ class MergeSortImproved : private MergeSortImpl {
                                   bool increasing);
 };
 
-#endif  // TAPE_SIMULATION_MERGE_SORT_HPP
+#endif  // TAPE_SIMULATION_IMPROVED_MERGE_SORT_HPP

@@ -33,7 +33,7 @@ TEST_P(MergeSortTest, MergeSortCompareWithStdSort) {
     MergeSort(tapePool, inFilename, "tmp", params.increasing)
         .perform(outFilename);
 
-    auto outTape = tapePool.getOpenedTape(outFilename);
+    auto outTape = tapePool.openTape(outFilename);
     outTape.moveLeftRepeated(outTape.getPosition());
 
     auto result = std::vector<std::int32_t>{};

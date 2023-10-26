@@ -2,7 +2,7 @@
 
 #include <copy_n.hpp>
 #include <filesystem>
-#include <merge_sort_improved.hpp>
+#include <improved_merge_sort.hpp>
 #include <vector>
 
 #include "common_utils.hpp"
@@ -31,11 +31,11 @@ TEST_P(ImprovedMergeSortTest, MergeSortCompareWithStdSort) {
 
     inTape.moveLeftRepeated(inTape.getPosition());
 
-    MergeSortImproved(tapePool, inFilename, "tmp", params.increasing,
+    ImprovedMergeSortImproved(tapePool, inFilename, "tmp", params.increasing,
                       params.heapSizeLimit)
         .perform(outFilename);
 
-    auto outTape = tapePool.getOpenedTape(outFilename);
+    auto outTape = tapePool.openTape(outFilename);
     outTape.moveLeftRepeated(outTape.getPosition());
 
     auto result = std::vector<std::int32_t>{};

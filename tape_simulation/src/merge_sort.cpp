@@ -16,15 +16,21 @@ MergeSort::MergeSort(TapePool& tapePool, std::string_view inFilename,
 
 ////////////////////////////////////////////////////////////////////////////////
 void MergeSort::perform(std::string_view outFilename) && {
-  auto inTape = tapePool_->getOpenedTape(inFilename_);
+  auto inTape = tapePool_->getOrOpenTape(inFilename_);
   auto outTape = tapePool_->createTape(std::string(outFilename), elementsCnt_);
 
+  if (inTape.getPosition() != 0) {
+    throw std::logic_error("Input tape head is not in the beginning.");
+  }
+
   if (elementsCnt_ == 0) {
+    tapePool_->closeTape(std::string(outFilename));
     return;
   }
 
   if (elementsCnt_ == 1) {
     outTape.write(inTape.read());
+    tapePool_->closeTape(std::string(outFilename));
     return;
   }
 

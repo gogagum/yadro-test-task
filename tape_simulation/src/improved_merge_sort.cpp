@@ -1,7 +1,7 @@
 #include <array>
 #include <cassert>
 #include <filesystem>
-#include <merge_sort_improved.hpp>
+#include <improved_merge_sort.hpp>
 #include <tape_pool.hpp>
 
 #include "copy_elements_sorted.hpp"
@@ -9,15 +9,14 @@
 #include "tape_view_write_iterators.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
-MergeSortImproved::ZeroHeapSizeLimit::ZeroHeapSizeLimit()
+ImprovedMergeSortImproved::ZeroHeapSizeLimit::ZeroHeapSizeLimit()
     : std::logic_error("heapSizeLimit can not be zero.") {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-MergeSortImproved::MergeSortImproved(TapePool& tapePool,
-                                     std::string_view inFilename,
-                                     std::string_view tmpDirectory,
-                                     bool increasing, std::size_t heapSizeLimit)
+ImprovedMergeSortImproved::ImprovedMergeSortImproved(
+    TapePool& tapePool, std::string_view inFilename,
+    std::string_view tmpDirectory, bool increasing, std::size_t heapSizeLimit)
     : MergeSortImpl(tapePool, inFilename, tmpDirectory, heapSizeLimit,
                     increasing) {
   if (heapSizeLimit == 0) {
@@ -26,16 +25,22 @@ MergeSortImproved::MergeSortImproved(TapePool& tapePool,
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void MergeSortImproved::perform(std::string_view outFilename) && {
-  auto inTape = tapePool_->getOpenedTape(inFilename_);
+void ImprovedMergeSortImproved::perform(std::string_view outFilename) && {
+  auto inTape = tapePool_->getOrOpenTape(inFilename_);
   auto outTape = tapePool_->createTape(std::string(outFilename), elementsCnt_);
 
+  if (inTape.getPosition() != 0) {
+    throw std::logic_error("Input tape head is not in the beginning.");
+  }
+
   if (elementsCnt_ == 0) {
+    tapePool_->closeTape(std::string(outFilename));
     return;
   }
 
   if (elementsCnt_ == 1) {
     outTape.write(inTape.read());
+    tapePool_->closeTape(std::string(outFilename));
     return;
   }
 
@@ -47,6 +52,7 @@ void MergeSortImproved::perform(std::string_view outFilename) && {
     } else {
       copy_bottom_elements_sorted(read, write, elementsCnt_);
     }
+    tapePool_->closeTape(std::string(outFilename));
     return;
   }
 
@@ -67,8 +73,8 @@ void MergeSortImproved::perform(std::string_view outFilename) && {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void MergeSortImproved::makeInitialBlocks_(TapeView& in, TapeView& out0,
-                                           TapeView& out1) const {
+void ImprovedMergeSortImproved::makeInitialBlocks_(TapeView& in, TapeView& out0,
+                                                   TapeView& out1) const {
   const auto [blocksOut0, blocksOut1] = getBlocksCnts_(initialBlockSize_);
   auto read = RightReadIterator(in);
   auto write0 = RightWriteIterator(out0);
@@ -106,9 +112,10 @@ void MergeSortImproved::makeInitialBlocks_(TapeView& in, TapeView& out0,
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void MergeSortImproved::copyElementsSorted_(RightReadIterator read,
-                                            RightWriteIterator write,
-                                            std::size_t cnt, bool increasing) {
+void ImprovedMergeSortImproved::copyElementsSorted_(RightReadIterator read,
+                                                    RightWriteIterator write,
+                                                    std::size_t cnt,
+                                                    bool increasing) {
   if (increasing) {
     copy_top_elements_sorted(read, write, cnt);
   } else {

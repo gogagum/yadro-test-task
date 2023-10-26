@@ -83,7 +83,7 @@ INSTANTIATE_TEST_SUITE_P(GeneratedDecreasingMerges, MergeTest,
 
 ////////////////////////////////////////////////////////////////////////////////
 TEST(Merge, MergeTwoEmptyIncreasing) {
-  const auto src = std::array{1, 2, 3};
+  const auto src = std::array<int, 3>{1, 2, 3};
   auto target = std::vector<std::uint32_t>{};
 
   const auto perform = [&]() {
@@ -96,7 +96,7 @@ TEST(Merge, MergeTwoEmptyIncreasing) {
 
 ////////////////////////////////////////////////////////////////////////////////
 TEST(Merge, MergeTwoEmptyDecreasing) {
-  const auto src = std::array{1, 2, 3};
+  const auto src = std::array<int, 3>{1, 2, 3};
   auto target = std::vector<std::uint32_t>{};
 
   const auto perform = [&]() {
@@ -109,7 +109,7 @@ TEST(Merge, MergeTwoEmptyDecreasing) {
 
 ////////////////////////////////////////////////////////////////////////////////
 TEST(Merge, MergeIncreasingWhileOneIsEmpty) {
-  const auto src = std::array{1, 2, 3};
+  const auto src = std::array<int, 3>{1, 2, 3};
   auto target1 = std::vector<std::uint32_t>{};
   auto target2 = std::vector<std::uint32_t>{};
 
@@ -130,7 +130,7 @@ TEST(Merge, MergeIncreasingWhileOneIsEmpty) {
 
 ////////////////////////////////////////////////////////////////////////////////
 TEST(Merge, MergeDecreasingWhileOneIsEmpty) {
-  const auto src = std::array{3, 2, 1};
+  const auto src = std::array<int, 3>{3, 2, 1};
   auto target1 = std::vector<std::uint32_t>{};
   auto target2 = std::vector<std::uint32_t>{};
 
@@ -151,10 +151,10 @@ TEST(Merge, MergeDecreasingWhileOneIsEmpty) {
 
 ////////////////////////////////////////////////////////////////////////////////
 TEST(Merge, MergeTwoEqualIncreasing) {
-  const auto src = std::array{1, 2, 3};
+  const auto src = std::array<int, 3>{1, 2, 3};
   auto target = std::vector<std::uint32_t>{};
 
-  const auto expected = std::array{1, 1, 2, 2, 3, 3};
+  const auto expected = std::array<int, 6>{1, 1, 2, 2, 3, 3};
 
   merge_increasing(src.begin(), 3, src.begin(), 3, std::back_inserter(target));
   EXPECT_EQ(target.size(), 6);
@@ -163,10 +163,10 @@ TEST(Merge, MergeTwoEqualIncreasing) {
 
 ////////////////////////////////////////////////////////////////////////////////
 TEST(Merge, MergeTwoEqualDecreasing) {
-  const auto src = std::array{3, 2, 1};
+  const auto src = std::array<int, 3>{3, 2, 1};
   auto target = std::vector<std::uint32_t>{};
 
-  const auto expected = std::array{3, 3, 2, 2, 1, 1};
+  const auto expected = std::array<int, 6>{3, 3, 2, 2, 1, 1};
 
   merge_decreasing(src.begin(), 3, src.begin(), 3, std::back_inserter(target));
   EXPECT_EQ(target.size(), 6);
@@ -175,11 +175,11 @@ TEST(Merge, MergeTwoEqualDecreasing) {
 
 ////////////////////////////////////////////////////////////////////////////////
 TEST(Merge, MergeTwoIncreasing) {
-  const auto src1 = std::array{1, 3, 4};
-  const auto src2 = std::array{2, 5, 6};
+  const auto src1 = std::array<int, 3>{1, 3, 4};
+  const auto src2 = std::array<int, 3>{2, 5, 6};
   auto target = std::vector<std::uint32_t>{};
 
-  const auto expected = std::array{1, 2, 3, 4, 5, 6};
+  const auto expected = std::array<int, 6>{1, 2, 3, 4, 5, 6};
 
   merge_increasing(src1.begin(), 3, src2.begin(), 3,
                    std::back_inserter(target));
@@ -189,11 +189,11 @@ TEST(Merge, MergeTwoIncreasing) {
 
 ////////////////////////////////////////////////////////////////////////////////
 TEST(Merge, MergeTwoDecreasing) {
-  const auto src1 = std::array{4, 3, 1};
-  const auto src2 = std::array{6, 5, 2};
+  const auto src1 = std::array<int, 3>{4, 3, 1};
+  const auto src2 = std::array<int, 3>{6, 5, 2};
   auto target = std::vector<std::uint32_t>{};
 
-  const auto expected = std::array{6, 5, 4, 3, 2, 1};
+  const auto expected = std::array<int, 6>{6, 5, 4, 3, 2, 1};
 
   merge_decreasing(src1.begin(), 3, src2.begin(), 3,
                    std::back_inserter(target));

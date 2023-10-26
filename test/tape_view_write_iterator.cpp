@@ -234,7 +234,7 @@ TEST(TapeViewWriteIterator, CopyRight) {
       auto tapeView = tapePool.createTape(filename, 10);
       auto writeIterator = RightWriteIterator(tapeView);
 
-      auto numbers = std::array{2, 3, 4, 2, 1};
+      auto numbers = std::array<int, 5>{2, 3, 4, 2, 1};
 
       std::copy(numbers.begin(), numbers.end(), writeIterator);
 
@@ -278,7 +278,7 @@ TEST(TapeViewWriteIterator, CopyLeft) {
         tapeView.moveRight();
       }
 
-      auto numbers = std::array{2, 3, 4, 2, 1};
+      auto numbers = std::array<int, 5>{2, 3, 4, 2, 1};
 
       std::copy(numbers.begin(), numbers.end(), writeIterator);
 
